@@ -1,6 +1,7 @@
+# Import the necessary libraries
 import streamlit as st
 import requests
-import re
+from lxml import etree
 
 # Define the Streamlit app
 def app():
@@ -16,22 +17,22 @@ def app():
     def scrape_urls(sitemap_url, keyword, target_url):
         # Get the sitemap
         res = requests.get(sitemap_url)
-        urls = re.findall("<loc>(.*?)</loc>", res.text)
+        root = etree.fromstring(res.content)
+        
+        # Get the URLs from the sitemap
+        urls = [loc.text for loc in root.findall("{http://www.sitemaps.org/schemas/sitemap/0.9}url/{http://www.sitemaps.org/schemas/sitemap/0.9}loc")]
         
         # Loop through the URLs
         for url in urls:
             # Get the HTML of the URL
             res = requests.get(url)
-            if res.status_code != 200:
-                continue
-            html = res.text
-            
-            # Check if the keyword is in the HTML
-            if keyword in html:
-                # Check if the target URL is not in the HTML
-                if target_url not in re.findall(r'<a\s+(?:[^>]*?\s+)?href=(["\'])(.*?)\1', html):
-                    # Return the URL
-                    return url
+            if res.status_code == 200:
+                # Check if the keyword is in the HTML
+                if keyword in res.text:
+                    # Check if the target URL is not in the HTML
+                    if target_url not in res.text:
+                        # Return the URL
+                        return url
         
         # If no URL is found, return None
         return None
