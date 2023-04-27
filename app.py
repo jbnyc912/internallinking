@@ -1,32 +1,49 @@
-import streamlit as st
 import requests
-from lxml import etree
+from bs4 import BeautifulSoup
+import streamlit as st
 
-def app():
-    st.title("Web Scraper")
 
-    sitemap_url = st.text_input("Enter the sitemap.xml URL:")
-    keyword = st.text_input("Enter the keyword to search for:")
-    target_url = st.text_input("Enter the target URL to avoid:")
-
-    def scrape_urls(sitemap_url, keyword, target_url):
-        res = requests.get(sitemap_url)
-        root = etree.fromstring(res.content)
-        urls = [loc.text for loc in root.xpath(".//{http://www.sitemaps.org/schemas/sitemap/0.9}loc")]
-
-        for url in urls:
-            res = requests.get(url)
-            root = etree.fromstring(res.content)
-            if keyword in root.xpath(".//body//text()"):
-                if target_url not in root.xpath(".//a/@href"):
-                    return url
-
-        return None
-
-    if st.button("Scrape"):
-        url = scrape_urls(sitemap_url, keyword, target_url)
-
-        if url:
-            st.success(f"Found URL: {url}")
+def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
+    st.write("Checking URLs...")
+    passed_urls = []
+    for url in site_urls:
+        st.write(f"Checking URL: {url}")
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, "html.parser")
+        keyword_found = False
+        for keyword in keywords:
+            if keyword.lower() in soup.get_text().lower():
+                keyword_found = True
+                break
+        if not keyword_found:
+            st.write(f"None of the keywords found in {url}")
+            continue
+        for link in soup.find_all("a"):
+            href = link.get("href")
+            if href is not None and (target_url in href or href.startswith(target_url)):
+                st.write(f"{url} has a link to {target_url}")
+                break
         else:
-            st.warning("No URL found.")
+            st.write(f"{url} does not have a link to {target_url}")
+            passed_urls.append(url)
+    if passed_urls:
+        st.write("URLs that passed all checks:")
+        for passed_url in passed_urls:
+            st.write(passed_url)
+    else:
+        st.write("No URLs passed all checks.")
+
+
+def main():
+    st.title("Web Crawler App")
+    site_urls = st.text_area("Site URLs", "https://www.google.com\nhttps://www.github.com")
+    site_urls = site_urls.split("\n")
+    keywords = st.text_area("Keywords", "Python\nStreamlit\nWeb scraping")
+    keywords = keywords.split("\n")
+    target_url = st.text_input("Target URL")
+    if st.button("Run Crawler"):
+        find_urls_with_keywords_and_target(site_urls, keywords, target_url)
+
+
+if __name__ == "__main__":
+    main()
