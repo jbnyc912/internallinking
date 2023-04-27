@@ -44,9 +44,18 @@ def search_sitemap(sitemap_url, keyword, target_url):
     
     return results
 
-# Example usage
-sitemap_url = 'https://example.com/sitemap.xml'
-keyword = 'example'
-target_url = 'https://example.com/page-to-exclude'
-results = search_sitemap(sitemap_url, keyword, target_url)
-print(results)
+def main():
+    sitemap_url = input("Enter the sitemap URL: ")
+    keyword = input("Enter the keyword to search for: ")
+    target_url = input("Enter the target URL to exclude: ")
+    
+    results = search_sitemap(sitemap_url, keyword, target_url)
+    if len(results) == 0:
+        print("No results found.")
+    else:
+        print("Results:")
+        for result in results:
+            print(result)
+
+if __name__ == '__main__':
+    main()
