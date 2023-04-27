@@ -1,7 +1,15 @@
 import requests
-from bs4 import BeautifulSoup
-import streamlit as st
 
+try:
+    from bs4 import BeautifulSoup
+except :
+    from BeautifulSoup import BeautifulSoup 
+import pandas as pd
+import time
+import streamlit as st
+from geopy import Nominatim
+
+import numpy as np
 
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
     st.write("Checking URLs...")
