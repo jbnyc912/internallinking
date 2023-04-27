@@ -50,19 +50,18 @@ def main():
     if st.button("Run Crawler"):
         passed_urls, num_passed = find_urls_with_keywords_and_target(site_urls, keywords, target_url)
         st.success(f"Finished crawling {len(site_urls)} sites. Found {num_passed} internal linking opportunities.")
-        if passed_urls:
-            st.warning("No URLs passed all checks.")
-
+            
             # Export results to CSV
-st.markdown("<br>", unsafe_allow_html=True)
-data = {"URL": passed_urls, "Keyword": [", ".join(keywords)] * len(passed_urls)}
-df = pd.DataFrame(data)
-csv = df.to_csv(index=False)
-b64 = base64.b64encode(csv.encode()).decode()
-filename = f"Internal Linking - {target_url}.csv"
-href = f'<a href="data:file/csv;base64,{b64}" download="{filename}"><button>Download CSV</button></a>'
-st.markdown(href, unsafe_allow_html=True)
-
+            st.markdown("<br>", unsafe_allow_html=True)
+            data = {"URL": passed_urls, "Keyword": [", ".join(keywords)] * len(passed_urls)}
+            df = pd.DataFrame(data)
+            csv = df.to_csv(index=False)
+            b64 = base64.b64encode(csv.encode()).decode()
+            filename = f"Internal Linking - {target_url}.csv"
+            href = f'<a href="data:file/csv;base64,{b64}" download="{filename}"><button>Download CSV</button></a>'
+            st.markdown(href, unsafe_allow_html=True)
+        else:
+            st.warning("No URLs passed all checks.")
 
 if __name__ == "__main__":
     main()
