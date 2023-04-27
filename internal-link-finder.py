@@ -5,7 +5,7 @@ import pandas as pd
 import base64
 
 
-def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
+def find_urls_with_keywords_and_target(site_urls, keywords, target_url, progress_bar):
     passed_urls = []
     num_crawled = 0
     num_passed = 0
@@ -26,7 +26,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
                 num_passed += 1
                 break
         num_crawled += 1
-        st.text(f"Crawling {num_crawled} out of {len(site_urls)}...")
+        progress_bar.progress(num_crawled/len(site_urls))
     return passed_urls, num_passed
 
 
@@ -34,19 +34,23 @@ def main():
     st.title("**Internal Linking Finder**")
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
-    st.subheader("**Site URLs**")
-    st.markdown("*Paste URLs below, one per line*", unsafe_allow_html=True)
-    site_urls = st.text_area("", "https://www.google.com\nhttps://www.github.com", height=150)
-    site_urls = site_urls.split("\n")
-    st.subheader("**Keywords**")
-    st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
-    keywords = st.text_area("", "Python\nStreamlit\nWeb scraping", height=150)
-    keywords = keywords.split("\n")
-    st.subheader("**Target URL**")
-    st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
-    target_url = st.text_input("", "https://www.example.com")
-    if st.button("Run Crawler"):
-        passed_urls, num_passed = find_urls_with_keywords_and_target(site_urls, keywords, target_url)
+    with st.form(key='input_form'):
+        st.subheader("**Site URLs**")
+        st.markdown("*Paste URLs below, one per line*", unsafe_allow_html=True)
+        site_urls = st.text_area("", "https://www.google.com\nhttps://www.github.com", height=150, help='Click to remove this text')
+        site_urls = site_urls.split("\n")
+        st.subheader("**Keywords**")
+        st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
+        keywords = st.text_area("", "Python\nStreamlit\nWeb scraping", height=150, help='Click to remove this text')
+        keywords = keywords.split("\n")
+        st.subheader("**Target URL**")
+        st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
+        target_url = st.text_input("", "https://www.example.com", help='Click to remove this text')
+        submitted = st.form_submit_button(label='Run Crawler')
+    
+    if submitted:
+        progress_bar = st.progress(0)
+        passed_urls, num_passed = find_urls_with_keywords_and_target(site_urls, keywords, target_url, progress_bar)
         st.success(f"Finished crawling {len(site_urls)} sites. Found {num_passed} internal linking opportunities.")
         if passed_urls:
             st.markdown("<br>", unsafe_allow_html=True)
