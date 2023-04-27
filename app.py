@@ -1,12 +1,6 @@
-import importlib
 import streamlit as st
 import requests
-from bs4 import BeautifulSoup4
-
-# Check if bs4 is installed
-if importlib.util.find_spec("bs4") is None:
-    # If bs4 is not installed, install it
-    $ pip install BeautifulSoup4
+import re
 
 # Define the Streamlit app
 def app():
@@ -22,21 +16,20 @@ def app():
     def scrape_urls(sitemap_url, keyword, target_url):
         # Get the sitemap
         res = requests.get(sitemap_url)
-        soup = BeautifulSoup(res.content, "xml")
-        
-        # Get the URLs from the sitemap
-        urls = [loc.text for loc in soup.find_all("loc")]
+        urls = re.findall("<loc>(.*?)</loc>", res.text)
         
         # Loop through the URLs
         for url in urls:
             # Get the HTML of the URL
             res = requests.get(url)
-            soup = BeautifulSoup(res.content, "html.parser")
+            if res.status_code != 200:
+                continue
+            html = res.text
             
             # Check if the keyword is in the HTML
-            if keyword in soup.text:
+            if keyword in html:
                 # Check if the target URL is not in the HTML
-                if target_url not in [a.get("href") for a in soup.find_all("a")]:
+                if target_url not in re.findall(r'<a\s+(?:[^>]*?\s+)?href=(["\'])(.*?)\1', html):
                     # Return the URL
                     return url
         
