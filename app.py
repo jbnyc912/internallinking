@@ -1,7 +1,7 @@
 import importlib
 import streamlit as st
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup4
 
 # Check if bs4 is installed
 if importlib.util.find_spec("bs4") is None:
