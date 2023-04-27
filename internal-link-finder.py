@@ -64,9 +64,9 @@ def main():
             st.markdown("<br>", unsafe_allow_html=True)
             st.subheader("**Export Results to CSV**")
             st.write("Click the button below to export results to CSV:")
-            data = {'URL not linking to Target': [], 'Keywords Found': []}
+            data = {'URL': [], 'Keywords Found': []}
             for url in passed_urls:
-                data['URL not linking to Target'].append(url['URL'])
+                data['URL'].append(url['URL'])
                 data['Keywords Found'].append(url['Keywords Found'])
             df = pd.DataFrame(data)
             csv = df.to_csv(index=False)
