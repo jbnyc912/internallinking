@@ -33,7 +33,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
             if keyword.lower() in soup.get_text().lower():
                 keywords_on_page.append(keyword)
         keywords_on_page_str = ', '.join(keywords_on_page)
-        passed_urls.append({'URL not linking to Target': url, 'Keywords Found': keywords_on_page_str})
+        passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
         num_passed += 1
         num_crawled += 1
         progress_text.text(f"Crawling {i+1} out of {len(site_urls)}...")
