@@ -43,7 +43,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
 def main():
     st.set_page_config(page_title="Internal Linking Finder", page_icon=":link:")
     st.title("Internal Linking Finder")
-    st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod nunc ut orci rutrum, id vulputate odio ullamcorper. Praesent nec tellus augue.")
+    st.markdown("This tools allows you to idenity URLs that doesn't currently link to the Target URL, and that mention the keyword(s).")
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("Site URLs")
     st.markdown("*Paste URLs below, one per line*", unsafe_allow_html=True)
@@ -58,25 +58,24 @@ def main():
     target_url = st.text_input("", placeholder="www.example.com")
     if st.button("Run Crawler"):
         passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url)
-        st.success(f"Finished crawling {len(site_urls)} sites. Found {len(passed_urls)} internal linking opportunities.")
+        st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
         if passed_urls:
             # Export results to CSV
             st.markdown("<br>", unsafe_allow_html=True)
-            st.subheader("Export Results to CSV")
+            st.subheader("**Export Results to CSV**")
             st.write("Click the button below to export results to CSV:")
             data = {'URL not linking to Target': [], 'Keywords Found': []}
             for url in passed_urls:
-                data['URL not linking to Target'].append(re.sub(r'https?://(?:www\.)?', '', url['URL']))
+                data['URL not linking to Target'].append(url['URL'])
                 data['Keywords Found'].append(url['Keywords Found'])
             df = pd.DataFrame(data)
             csv = df.to_csv(index=False)
             b64 = base64.b64encode(csv.encode()).decode()
-            filename = f"Internal Linking - {target_url.replace('https://', '').replace('http://', '').replace('www.', '')}.csv"
+            filename = f"Internal Linking - {target_url}.csv"
             href = f'<a href="data:file/csv;base64,{b64}" download="{filename}"><button>Download CSV</button></a>'
             st.markdown(href, unsafe_allow_html=True)
         else:
             st.warning("No URLs passed all checks.")
-
 
 if __name__ == "__main__":
     main()
