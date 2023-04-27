@@ -50,7 +50,8 @@ def main():
     site_urls = st.text_area("", placeholder="https://www.google.com\nhttps://www.github.com", height=150)
     site_urls = site_urls.split("\n")
     st.subheader("Keywords")
-    st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
+    st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True),
+        "<style>div.stmarkdown > div {margin-bottom: 20px;}</style>")
     keywords = st.text_area("", placeholder="blue widget\ngreen bicycle\norange balloon", height=150)
     keywords = keywords.split("\n")
     st.subheader("Target URL")
