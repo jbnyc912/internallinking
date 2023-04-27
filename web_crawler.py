@@ -1,11 +1,7 @@
 import requests
-import sys
-
-sys.path.append("/Users/jimmyfl0/Desktop/Dev/mine/the_venv/lib/python3.10/site-packages")
-
-import bs4 
 from bs4 import BeautifulSoup
 import streamlit as st
+
 
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
     st.write("Checking URLs...")
