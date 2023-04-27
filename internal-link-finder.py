@@ -9,7 +9,6 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
     passed_urls = []
     num_crawled = 0
     num_passed = 0
-    progress_bar = st.progress(0)
     for url in site_urls:
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
@@ -27,7 +26,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
                 num_passed += 1
                 break
         num_crawled += 1
-        progress_bar.progress(num_crawled / len(site_urls))
+        st.text(f"Crawling {num_crawled} out of {len(site_urls)}...")
     return passed_urls, num_passed
 
 
@@ -37,34 +36,34 @@ def main():
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("**Site URLs**")
     st.markdown("*Paste URLs below, one per line*", unsafe_allow_html=True)
-    site_urls = st.text_area("Paste URLs here", "https://www.google.com\nhttps://www.github.com", height=150)
+    site_urls = st.text_area("", placeholder="https://www.google.com\nhttps://www.github.com", height=150)
     site_urls = site_urls.split("\n")
     st.subheader("**Keywords**")
     st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
-    keywords = st.text_area("Paste keywords here", "Python\nStreamlit\nWeb scraping", height=150)
+    keywords = st.text_area("", placeholder="Python\nStreamlit\nWeb scraping", height=150)
     keywords = keywords.split("\n")
     st.subheader("**Target URL**")
     st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
-    target_url = st.text_input("Target URL", "https://www.example.com")
+    target_url = st.text_input("", placeholder="https://www.example.com")
     if st.button("Run Crawler"):
         passed_urls, num_passed = find_urls_with_keywords_and_target(site_urls, keywords, target_url)
         st.success(f"Finished crawling {len(site_urls)} sites. Found {num_passed} internal linking opportunities.")
-        # Export results to CSV
         if passed_urls:
-            data = {"URL": [], "Keyword": []}
-            for url in passed_urls:
-                response = requests.get(url)
-                soup = BeautifulSoup(response.content, "html.parser")
-                for keyword in keywords:
-                    if keyword.lower() in soup.get_text().lower():
-                        data["URL"].append(url)
-                        data["Keyword"].append(keyword)
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.subheader("**URLs that passed all checks**")
+            for passed_url in passed_urls:
+                st.write(passed_url)
+            
+            # Export results to CSV
+            st.markdown("<br>", unsafe_allow_html=True)
+            data = {"URL": passed_urls, "Keyword": [", ".join(keywords)] * len(passed_urls)}
             df = pd.DataFrame(data)
-            csv_title = f"Internal Linking - {target_url}"
             csv = df.to_csv(index=False)
             b64 = base64.b64encode(csv.encode()).decode()
-            href = f'<a href="data:file/csv;base64,{b64}" download="{csv_title}.csv"><button>Download CSV</button></a>'
+            href = f'<a href="data:file/csv;base64,{b64}" download="results.csv"><button>Download CSV</button></a>'
             st.markdown(href, unsafe_allow_html=True)
+        else:
+            st.warning("No URLs passed all checks.")
 
 
 if __name__ == "__main__":
