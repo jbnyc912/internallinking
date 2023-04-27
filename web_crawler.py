@@ -47,3 +47,19 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    if passed_urls:
+        st.write("URLs that passed all checks:")
+        for passed_url in passed_urls:
+            st.write(passed_url)
+        
+        # Export results to CSV
+        data = {"URL": passed_urls, "Keyword": [", ".join(keywords)] * len(passed_urls)}
+        df = pd.DataFrame(data)
+        csv = df.to_csv(index=False)
+        b64 = base64.b64encode(csv.encode()).decode()
+        href = f'<a href="data:file/csv;base64,{b64}" download="results.csv">Download CSV</a>'
+        st.markdown(href, unsafe_allow_html=True)
+    else:
+        st.write("No URLs passed all checks.")
+
