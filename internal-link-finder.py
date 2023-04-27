@@ -44,14 +44,12 @@ def main():
     st.set_page_config(page_title="Internal Linking Finder", page_icon=":link:")
     st.title("Internal Linking Finder")
     st.markdown("This tools allows you to idenity URLs that doesn't currently link to the Target URL, and that mention the keyword(s).")
-    st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("Site URLs")
     st.markdown("*Paste URLs below, one per line*", unsafe_allow_html=True)
     site_urls = st.text_area("", placeholder="https://www.google.com\nhttps://www.bing.com", height=150)
     site_urls = site_urls.split("\n")
     st.subheader("Keywords")
     st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
-    st.subheader("", style="margin-bottom: -20px") # Add CSS style to reduce space below subheader
     keywords = st.text_area("", placeholder="blue widget\ngreen bicycle\norange balloon", height=150)
     keywords = keywords.split("\n")
     st.subheader("Target URL")
@@ -61,8 +59,6 @@ def main():
         passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url)
         st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
         if passed_urls:
-            # Display results
-            st.write(passed_urls)
             # Export results to CSV
             st.markdown("<br>", unsafe_allow_html=True)
             st.subheader("**Export Results to CSV**")
