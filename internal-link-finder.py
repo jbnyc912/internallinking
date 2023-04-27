@@ -27,7 +27,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
                 num_passed += 1
                 break
         num_crawled += 1
-        progress_bar.progress(int(num_crawled / len(site_urls) * 100))
+        progress_bar.progress(num_crawled / len(site_urls))
     return passed_urls, num_passed
 
 
@@ -37,15 +37,15 @@ def main():
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("**Site URLs**")
     st.markdown("*Paste URLs below, one per line*", unsafe_allow_html=True)
-    site_urls = st.text_area("", "https://www.google.com\nhttps://www.github.com", height=150)
+    site_urls = st.text_area("Paste URLs here", "https://www.google.com\nhttps://www.github.com", height=150)
     site_urls = site_urls.split("\n")
     st.subheader("**Keywords**")
     st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
-    keywords = st.text_area("", "Python\nStreamlit\nWeb scraping", height=150)
+    keywords = st.text_area("Paste keywords here", "Python\nStreamlit\nWeb scraping", height=150)
     keywords = keywords.split("\n")
     st.subheader("**Target URL**")
     st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
-    target_url = st.text_input("", "https://www.example.com")
+    target_url = st.text_input("Target URL", "https://www.example.com")
     if st.button("Run Crawler"):
         passed_urls, num_passed = find_urls_with_keywords_and_target(site_urls, keywords, target_url)
         st.success(f"Finished crawling {len(site_urls)} sites. Found {num_passed} internal linking opportunities.")
@@ -60,10 +60,10 @@ def main():
                         data["URL"].append(url)
                         data["Keyword"].append(keyword)
             df = pd.DataFrame(data)
-            csv_title = f"Internal Linking - {target_url.split('//')[1]}.csv"
+            csv_title = f"Internal Linking - {target_url}"
             csv = df.to_csv(index=False)
             b64 = base64.b64encode(csv.encode()).decode()
-            href = f'<a href="data:file/csv;base64,{b64}" download="{csv_title}"><button>Download CSV</button></a>'
+            href = f'<a href="data:file/csv;base64,{b64}" download="{csv_title}.csv"><button>Download CSV</button></a>'
             st.markdown(href, unsafe_allow_html=True)
 
 
