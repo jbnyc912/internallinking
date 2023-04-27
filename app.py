@@ -2,11 +2,12 @@ import importlib
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
+import subprocess
 
 # Check if bs4 is installed
 if importlib.util.find_spec("bs4") is None:
-    # If bs4 is not installed, install it
-    !pip install bs4
+    # If bs4 is not installed, install it using subprocess
+    subprocess.check_call(["pip", "install", "bs4"])
 
 # Define the Streamlit app
 def app():
