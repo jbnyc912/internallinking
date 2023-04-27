@@ -9,7 +9,8 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
     passed_urls = []
     num_crawled = 0
     num_passed = 0
-    for url in site_urls:
+    progress_bar = st.progress(0)
+    for i, url in enumerate(site_urls):
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
         keyword_found = False
@@ -26,7 +27,8 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
                 num_passed += 1
                 break
         num_crawled += 1
-        st.text(f"Crawling {num_crawled} out of {len(site_urls)}...")
+        progress_bar.progress((i + 1) / len(site_urls))
+        st.sidebar.text(f"Crawling {i+1}/{len(site_urls)}...")
     return passed_urls, num_passed
 
 
@@ -49,22 +51,23 @@ def main():
         passed_urls, num_passed = find_urls_with_keywords_and_target(site_urls, keywords, target_url)
         st.success(f"Finished crawling {len(site_urls)} sites. Found {num_passed} internal linking opportunities.")
         if passed_urls:
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.subheader("**URLs that passed all checks**")
-            for passed_url in passed_urls:
-                st.write(passed_url)
-            
             # Export results to CSV
             st.markdown("<br>", unsafe_allow_html=True)
-            data = {"URL": passed_urls, "Keyword": [", ".join(keywords)] * len(passed_urls)}
+            data = {"URL": passed_urls, "Keyword": []}
+            for url in passed_urls:
+                response = requests.get(url)
+                soup = BeautifulSoup(response.content, "html.parser")
+                keywords_found = []
+                for keyword in keywords:
+                    if keyword.lower() in soup.get_text().lower():
+                        keywords_found.append(keyword)
+                data["Keyword"].append(", ".join(keywords_found))
             df = pd.DataFrame(data)
+            csv_title = f"Internal Linking - {target_url}"
             csv = df.to_csv(index=False)
             b64 = base64.b64encode(csv.encode()).decode()
-            href = f'<a href="data:file/csv;base64,{b64}" download="results.csv"><button>Download CSV</button></a>'
+            href = f'<a href="data:file/csv;base64,{b64}" download="{csv_title}.csv"><button>Download CSV</button></a>'
             st.markdown(href, unsafe_allow_html=True)
-        else:
-            st.warning("No URLs passed all checks.")
-
-
+            
 if __name__ == "__main__":
     main()
