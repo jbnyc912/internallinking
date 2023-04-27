@@ -1,13 +1,18 @@
+import subprocess
 import importlib
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
-import subprocess
 
-# Check if bs4 is installed
+# Create and activate a virtual environment
+subprocess.check_call(["python", "-m", "venv", "venv"])
+subprocess.check_call(["/bin/bash", "-c", "source venv/bin/activate"])
+
+# Install required packages in the virtual environment
 if importlib.util.find_spec("bs4") is None:
-    # If bs4 is not installed, install it using subprocess
     subprocess.check_call(["pip", "install", "bs4"])
+if importlib.util.find_spec("requests") is None:
+    subprocess.check_call(["pip", "install", "requests"])
 
 # Define the Streamlit app
 def app():
@@ -52,3 +57,6 @@ def app():
             st.success(f"Found URL: {url}")
         else:
             st.warning("No URL found.")
+
+# Deactivate the virtual environment
+subprocess.check_call(["/bin/bash", "-c", "deactivate"])
