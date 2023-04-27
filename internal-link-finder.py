@@ -38,7 +38,7 @@ def main():
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("**Site URLs**")
     st.markdown("*Paste URLs below, one per line*", unsafe_allow_html=True)
-    site_urls = st.text_area("", "https://www.google.com\nhttps://www.github.com", height=150)
+    site_urls = st.text_area("", "https://www.google.com\nhttps://www.github.com", height=75)
     site_urls = site_urls.split("\n")
     st.subheader("**Keywords**")
     st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
