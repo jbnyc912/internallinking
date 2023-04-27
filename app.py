@@ -1,7 +1,7 @@
 # Import the necessary libraries
 import streamlit as st
 import requests
-!pip install lxml
+pip install lxml
 from lxml import etree
 
 # Define the Streamlit app
