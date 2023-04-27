@@ -1,61 +1,32 @@
 import requests
+import streamlit as st
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
-def check_url(url, keyword, target_url):
-    try:
-        # Get the HTML content of the URL
-        response = requests.get(url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-        
-        # Check if the HTML contains the keyword
-        if keyword not in soup.get_text():
-            return None
-        
-        # Check if the HTML contains a link to the target URL
-        parsed_target_url = urlparse(target_url)
-        for link in soup.find_all('a'):
-            parsed_link = urlparse(link.get('href'))
-            if parsed_target_url.netloc == parsed_link.netloc and parsed_target_url.path == parsed_link.path:
-                return None
-        
-        # If the URL passes all checks, return it
-        return url
-    
-    except Exception as e:
-        print(f"Error checking URL {url}: {e}")
-        return None
-
-def search_sitemap(sitemap_url, keyword, target_url):
-    # Get the XML sitemap
-    response = requests.get(sitemap_url)
-    soup = BeautifulSoup(response.content, 'xml')
-
-    # Find all the URL tags in the sitemap
-    urls = soup.find_all('url')
-
-    # Check each URL for the keyword and target URL
-    results = []
+def scrape_sitemap(sitemap_url, keyword, target_url):
+    sitemap = requests.get(sitemap_url)
+    soup = BeautifulSoup(sitemap.content, 'html.parser')
+    urls = [element.text for element in soup.findAll('loc')]
+    matching_urls = []
     for url in urls:
-        loc = url.find('loc').text
-        result = check_url(loc, keyword, target_url)
-        if result:
-            results.append(result)
-    
-    return results
+        html_content = requests.get(url).content
+        if keyword in html_content.decode('utf-8'):
+            soup = BeautifulSoup(html_content, 'html.parser')
+            for link in soup.find_all('a'):
+                if link.get('href') == target_url:
+                    break
+            else:
+                matching_urls.append(url)
+    return matching_urls
 
-def main():
-    sitemap_url = input("Enter the sitemap URL: ")
-    keyword = input("Enter the keyword to search for: ")
-    target_url = input("Enter the target URL to exclude: ")
-    
-    results = search_sitemap(sitemap_url, keyword, target_url)
-    if len(results) == 0:
-        print("No results found.")
-    else:
-        print("Results:")
-        for result in results:
-            print(result)
+st.title('Sitemap Scraper')
 
-if __name__ == '__main__':
-    main()
+sitemap_url = st.text_input('Enter the URL of the sitemap:')
+keyword = st.text_input('Enter a keyword to search for in the sitemap URLs:')
+target_url = st.text_input('Enter the URL of the target site:')
+
+if st.button('Search'):
+    matching_urls = scrape_sitemap(sitemap_url, keyword, target_url)
+    st.write(f'The following {len(matching_urls)} URLs match your search criteria:')
+    for url in matching_urls:
+        st.write(url)
