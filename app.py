@@ -2,7 +2,7 @@ import subprocess
 import importlib
 import streamlit as st
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup4
 
 # Create and activate a virtual environment
 subprocess.check_call(["python", "-m", "venv", "venv"])
