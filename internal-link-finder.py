@@ -53,5 +53,16 @@ def main():
         if passed_urls:
             st.warning("No URLs passed all checks.")
 
+            # Export results to CSV
+st.markdown("<br>", unsafe_allow_html=True)
+data = {"URL": passed_urls, "Keyword": [", ".join(keywords)] * len(passed_urls)}
+df = pd.DataFrame(data)
+csv = df.to_csv(index=False)
+b64 = base64.b64encode(csv.encode()).decode()
+filename = f"Internal Linking - {target_url}.csv"
+href = f'<a href="data:file/csv;base64,{b64}" download="{filename}"><button>Download CSV</button></a>'
+st.markdown(href, unsafe_allow_html=True)
+
+
 if __name__ == "__main__":
     main()
