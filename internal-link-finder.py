@@ -15,13 +15,18 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
         keyword_found = False
+        link_to_target_found = False
         for keyword in keywords:
             if keyword.lower() in soup.get_text().lower():
                 keyword_found = True
                 break
         if not keyword_found:
             continue
-        if target_url in soup.find_all('a'):
+        for link in soup.find_all('a'):
+            if link.has_attr('href') and target_url in link['href']:
+                link_to_target_found = True
+                break
+        if link_to_target_found:
             continue
         keywords_on_page = []
         for keyword in keywords:
