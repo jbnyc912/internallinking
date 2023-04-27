@@ -1,15 +1,11 @@
 import requests
+import sys
 
-try:
-    from bs4 import BeautifulSoup
-except :
-    from BeautifulSoup import BeautifulSoup 
-import pandas as pd
-import time
+sys.path.append("/Users/jimmyfl0/Desktop/Dev/mine/the_venv/lib/python3.10/site-packages")
+
+import bs4 
+from bs4 import BeautifulSoup
 import streamlit as st
-from geopy import Nominatim
-
-import numpy as np
 
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
     st.write("Checking URLs...")
