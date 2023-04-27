@@ -5,7 +5,7 @@ import pandas as pd
 import base64
 
 
-def find_urls_with_keywords_and_target(site_urls, keywords, target_url, progress_bar):
+def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
     passed_urls = []
     num_crawled = 0
     num_passed = 0
@@ -26,13 +26,11 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, progress
                 num_passed += 1
                 break
         num_crawled += 1
-        progress_bar.progress(num_crawled/len(site_urls))
+        st.text(f"Crawling {num_crawled} out of {len(site_urls)}...")
     return passed_urls, num_passed
 
 
 def main():
-    st.set_page_config(page_title="Internal Linking Finder", page_icon=":link:")
-
     st.title("**Internal Linking Finder**")
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
@@ -66,7 +64,6 @@ def main():
             st.markdown(href, unsafe_allow_html=True)
         else:
             st.warning("No URLs passed all checks.")
-
 
 
 if __name__ == "__main__":
