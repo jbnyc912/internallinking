@@ -66,7 +66,7 @@ def main():
             st.write("Click the button below to export results to CSV:")
             data = {'URL not linking to Target': [], 'Keywords Found': []}
             for url in passed_urls:
-                data['URL not linking to Target'].append(url['URL'].replace("https://", "").replace("http://", "").replace("www.", ""))
+                data['URL not linking to Target'].append(url['URL'])
                 data['Keywords Found'].append(url['Keywords Found'])
             df = pd.DataFrame(data)
             csv = df.to_csv(index=False)
