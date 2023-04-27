@@ -3,7 +3,7 @@ import importlib
 # Check if bs4 is installed
 if importlib.util.find_spec("bs4") is None:
     # If bs4 is not installed, install it
-    !pip install bs4
+    pip install bs4
 
 # Import the necessary libraries
 import streamlit as st
