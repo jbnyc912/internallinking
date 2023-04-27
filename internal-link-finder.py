@@ -41,7 +41,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
     return passed_urls
 
 def main():
-    st.set_page_config(page_title="Internal Linking Finder", page_icon=":link:", layout="wide")
+    st.set_page_config(page_title="Internal Linking Finder", page_icon=":link:")
     st.title("Internal Linking Finder")
     st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod nunc ut orci rutrum, id vulputate odio ullamcorper. Praesent nec tellus augue.")
     st.markdown("<br>", unsafe_allow_html=True)
