@@ -51,7 +51,7 @@ def main():
     st.markdown(
         """<style>
         .st-ca {
-            margin-top: -10px;
+            margin-top: 50px;
         }
         </style>""", 
         unsafe_allow_html=True
