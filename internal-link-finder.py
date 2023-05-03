@@ -44,27 +44,34 @@ def main():
     st.set_page_config(page_title="Internal Linking Finder", page_icon=":link:")
     st.title("Internal Linking Finder")
     st.markdown("This tool allows you to identify URLs that don't currently link to the Target URL, and that mention the keyword(s).")
-    
+
     # CSV upload
     st.subheader("Site URLs")
     st.markdown("*Upload a CSV file below. The list of URLs should be in column A with no header.*", unsafe_allow_html=True)
     uploaded_file = st.file_uploader("", type="csv")
+    site_urls = []
     if uploaded_file is not None:
         site_urls = pd.read_csv(uploaded_file)
         site_urls = site_urls.iloc[:, 0].tolist()
         st.success(f"Found {len(site_urls)} URLs.")
     
-        # Keywords
-        st.subheader("Keywords")
-        st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
-        keywords = st.text_area("", placeholder="blue widget\ngreen bicycle\norange balloon", height=150)
-        keywords = keywords.split("\n")
-        
-        # Target URL
-        st.subheader("Target URL")
-        st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
-        target_url = st.text_input("", placeholder="www.example.com")
-        
+    # Keywords
+    st.subheader("Keywords")
+    st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
+    keywords = st.text_area("", placeholder="blue widget\ngreen bicycle\norange balloon", height=150)
+    keywords = keywords.split("\n")
+    
+    # Target URL
+    st.subheader("Target URL")
+    st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
+    target_url = st.text_input("", placeholder="www.example.com")
+    
+    if uploaded_file is None:
+        if st.button("Find URLs"):
+            site_urls = get_site_urls()
+            st.success(f"Found {len(site_urls)} URLs.")
+    
+    if site_urls and keywords and target_url:
         # Run crawler
         if st.button("Run Crawler"):
             passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url)
