@@ -47,7 +47,6 @@ def main():
 
     # CSV upload
     st.subheader("Site URLs")
-    st.markdown("*Upload a CSV file below. The list of URLs should be in column A with no header.*", unsafe_allow_html=True)
     uploaded_file = st.file_uploader("", type="csv")
     site_urls = []
     if uploaded_file is not None:
