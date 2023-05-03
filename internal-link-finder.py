@@ -42,8 +42,13 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
 
 def main():
     st.set_page_config(page_title="Internal Linking Finder", page_icon=":link:")
-    st.image("https://scontent.fslc3-2.fna.fbcdn.net/v/t39.30808-6/306042676_506308304831092_90216115740552247_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=1fBuPeS-wTYAX9JSC05&_nc_ht=scontent.fslc3-2.fna&oh=00_AfAnvRo-0PBoKFOsSv_Lt8vbWf2gOz5kwvHEjlkd0GlM2Q&oe=6457BA63", width=100)
-    st.write("<small>a Break The Web tool</small>", unsafe_allow_html=True)
+    col1, col2 = st.beta_columns([1, 10])
+with col1:
+    st.image('https://breaktheweb.agency/wp-content/uploads/2020/11/logo.png', width=50)
+with col2:
+    st.write('A Break The Web tool')
+    st.title('Internal Linking Finder')
+
     st.title("Internal Linking Finder")
     st.markdown("This tool allows you to identify URLs that don't currently link to the Target URL, and that mention the keyword(s).")
 
