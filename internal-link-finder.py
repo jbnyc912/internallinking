@@ -48,7 +48,7 @@ def main():
 
     # CSV upload
     st.subheader("Site URLs")
-    st.markdown("*First, upload the list of URLs you would like to checl. The upload must be a CSV file with the URLs in column A and no header.*", unsafe_allow_html=True)
+    st.markdown("*First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header.*", unsafe_allow_html=True)
     uploaded_file = st.file_uploader("", type="csv")
     if uploaded_file is not None:
         site_urls = pd.read_csv(uploaded_file)
