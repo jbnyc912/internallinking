@@ -48,7 +48,7 @@ def main():
     # CSV upload
     st.subheader("Site URLs")
     st.markdown("*Upload a CSV file below. The list of URLs should be in column A with no header.*", unsafe_allow_html=True)
-    uploaded_file = st.file_uploader("", type="csv")
+    uploaded_file = st.file_uploader("--", type="csv")
     site_urls = []
     if uploaded_file is not None:
         site_urls = pd.read_csv(uploaded_file)
@@ -58,13 +58,13 @@ def main():
     # Keywords
     st.subheader("Keywords")
     st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
-    keywords = st.text_area("", placeholder="blue widget\ngreen bicycle\norange balloon", height=150)
+    keywords = st.text_area("--", placeholder="blue widget\ngreen bicycle\norange balloon", height=150)
     keywords = keywords.split("\n")
     
     # Target URL
     st.subheader("Target URL")
     st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
-    target_url = st.text_input("", placeholder="www.example.com")
+    target_url = st.text_input("--", placeholder="www.example.com")
     
     if uploaded_file is None:
         if st.button("Find URLs"):
