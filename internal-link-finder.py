@@ -15,7 +15,6 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
     for i, url in enumerate(site_urls):
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
-        keyword_found = False
         link_to_target_found = False
         
         if xpath:
@@ -23,20 +22,17 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
             if content_elements:
                 for content_element in content_elements:
                     content_text = content_element.get_text()
-                    for keyword in keywords:
-                        if keyword.lower() in content_text.lower():
-                            keyword_found = True
-                            break
+                    keyword_found = any(keyword.lower() in content_text.lower() for keyword in keywords)
                     if not keyword_found:
-                        for link in content_element.find_all('a'):
-                            if link.has_attr('href') and target_url in link['href']:
-                                link_to_target_found = True
-                                break
+                        link_to_target_found = any(
+                            link.has_attr('href') and target_url in link['href']
+                            for link in content_element.find_all('a')
+                        )
                         if not link_to_target_found:
-                            keywords_on_page = []
-                            for keyword in keywords:
-                                if keyword.lower() in content_text.lower():
-                                    keywords_on_page.append(keyword)
+                            keywords_on_page = [
+                                keyword for keyword in keywords
+                                if keyword.lower() in content_text.lower()
+                            ]
                             keywords_on_page_str = ', '.join(keywords_on_page)
                             passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
                             num_passed += 1
@@ -45,18 +41,15 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
         else:
             content_text = soup.get_text()
 
-        for keyword in keywords:
-            if keyword.lower() in content_text.lower():
-                keyword_found = True
-                break
+        keyword_found = any(keyword.lower() in content_text.lower() for keyword in keywords)
 
         if not keyword_found:
             continue
 
-        for link in soup.find_all('a'):
-            if link.has_attr('href') and target_url in link['href']:
-                link_to_target_found = True
-                break
+        link_to_target_found = any(
+            link.has_attr('href') and target_url in link['href']
+            for link in soup.find_all('a')
+        )
 
         if link_to_target_found:
             continue
@@ -66,6 +59,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
         progress_bar.progress(int((i+1) / len(site_urls) * 100))
         
     return passed_urls
+
 
 def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
