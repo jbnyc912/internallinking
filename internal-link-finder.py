@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import time
 import streamlit as st
 import pandas as pd
 import base64
@@ -12,7 +11,6 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
     num_passed = 0
     progress_text = st.sidebar.empty()
     progress_bar = st.sidebar.progress(0)
-    start_time = time.time()
     for i, url in enumerate(site_urls):
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
@@ -54,14 +52,6 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
         num_crawled += 1
         progress_text.text(f"Crawling {i+1} out of {len(site_urls)}...")
         progress_bar.progress(int((i+1) / len(site_urls) * 100))
-        
-        # Estimate remaining time
-        elapsed_time = time.time() - start_time
-        avg_time_per_url = elapsed_time / num_crawled
-        remaining_urls = len(site_urls) - num_crawled
-        remaining_time = avg_time_per_url * remaining_urls
-        status_text = f"Estimated time remaining: {remaining_time:.2f} seconds"
-        st.text(status_text)
         
     return passed_urls
 
