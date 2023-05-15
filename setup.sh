@@ -1,2 +1,2 @@
 #!/bin/bash
-pip install beautifulsoup4 requests streamlit time
+pip install beautifulsoup4 requests streamlit
