@@ -24,17 +24,12 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
                             keyword_found = True
                             break
                     if not keyword_found:
-                        for link in content_element.find_all('a'):
-                            if link.has_attr('href') and target_url in link['href']:
+                        for link in content_element.find_all('a', href=True):
+                            if target_url in link['href']:
                                 link_to_target_found = True
                                 break
                         if not link_to_target_found:
-                            keywords_on_page = []
-                            for keyword in keywords:
-                                if keyword.lower() in content_text.lower():
-                                    keywords_on_page.append(keyword)
-                            keywords_on_page_str = ', '.join(keywords_on_page)
-                            passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
+                            passed_urls.append({'URL': url, 'Keyword': ', '.join(keywords)})
                             break
         else:
             content_text = soup.get_text()
@@ -47,20 +42,15 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
             if not keyword_found:
                 continue
 
-            for link in soup.find_all('a'):
-                if link.has_attr('href') and target_url in link['href']:
+            for link in soup.find_all('a', href=True):
+                if target_url in link['href']:
                     link_to_target_found = True
                     break
 
             if link_to_target_found:
                 continue
 
-            keywords_on_page = []
-            for keyword in keywords:
-                if keyword.lower() in content_text.lower():
-                    keywords_on_page.append(keyword)
-            keywords_on_page_str = ', '.join(keywords_on_page)
-            passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
+            passed_urls.append({'URL': url, 'Keyword': ', '.join(keywords)})
         
     return passed_urls
 
