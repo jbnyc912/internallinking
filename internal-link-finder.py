@@ -74,8 +74,8 @@ def main():
         keywords = keywords.split("\n")
         
         # XPath for Content Sections
-        st.subheader("XPath for Content Sections (Optional)")
-        st.markdown("*Enter the full XPath for the content sections you want to check*", unsafe_allow_html=True)
+        st.subheader("Content Section's Full XPath *(Optional)*")
+        st.markdown("*By pasting in the full XPath of the content section, we can avoid looking at sitewide sections for internal links.*", unsafe_allow_html=True)
         xpath = st.text_input("", placeholder="")
                     
         # Target URL
