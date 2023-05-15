@@ -7,14 +7,11 @@ import base64
 
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
     passed_urls = []
-    num_crawled = 0
-    num_passed = 0
-    progress_text = st.sidebar.empty()
-    progress_bar = st.sidebar.progress(0)
     
-    for i, url in enumerate(site_urls):
+    for url in site_urls:
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
+        
         keyword_found = False
         link_to_target_found = False
         
@@ -39,34 +36,33 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
                                     keywords_on_page.append(keyword)
                             keywords_on_page_str = ', '.join(keywords_on_page)
                             passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
-                            num_passed += 1
-            else:
-                content_text = ""
         else:
             content_text = soup.get_text()
+            
+            for keyword in keywords:
+                if keyword.lower() in content_text.lower():
+                    keyword_found = True
+                    break
 
-        for keyword in keywords:
-            if keyword.lower() in content_text.lower():
-                keyword_found = True
-                break
+            if not keyword_found:
+                continue
 
-        if not keyword_found:
-            continue
+            for link in soup.find_all('a'):
+                if link.has_attr('href') and target_url in link['href']:
+                    link_to_target_found = True
+                    break
 
-        for link in soup.find_all('a'):
-            if link.has_attr('href') and target_url in link['href']:
-                link_to_target_found = True
-                break
+            if link_to_target_found:
+                continue
 
-        if link_to_target_found:
-            continue
-
-        num_crawled += 1
-        progress_text.text(f"Crawling {i+1} out of {len(site_urls)}...")
-        progress_bar.progress(int((i+1) / len(site_urls) * 100))
+            keywords_on_page = []
+            for keyword in keywords:
+                if keyword.lower() in content_text.lower():
+                    keywords_on_page.append(keyword)
+            keywords_on_page_str = ', '.join(keywords_on_page)
+            passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
         
     return passed_urls
-
 
 def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
