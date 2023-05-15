@@ -54,7 +54,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
 
 def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
-    st.image("https://scontent.fslc3-2.fna.fbcdn.net/v/t39.30808-6/306042676_506308304831092_90216115740552247_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=1fBuPeS-wTYAX9JSC05&_nc_ht=scontent.fslc3-2.fna&oh=00_AfAnvRo-0PBoKFOsSv_Lt8vbWf2gOz5kwvHEjlkd0GlM2Q&oe=6457BA63", width=40)
+    st.image("https://cdn-icons-png.flaticon.com/128/3093/3093852.png", width=40)
     st.title("Internal Linking Finder")
     st.markdown("This tool allows you to identify URLs not currently linking to the Target URL, and also include the keyword(s)")
 
@@ -72,16 +72,16 @@ def main():
         st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
         keywords = st.text_area("", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
         keywords = keywords.split("\n")
+        
+        # XPath for Content Sections
+        st.subheader("XPath for Content Sections (Optional)")
+        st.markdown("*Enter the full XPath for the content sections you want to check*", unsafe_allow_html=True)
+        xpath = st.text_input("", placeholder="")
                     
         # Target URL
         st.subheader("Target URL")
         st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
         target_url = st.text_input("", placeholder="https://breaktheweb.agency/seo/seo-timeline")
-
-        # XPath for Content Sections
-        st.subheader("XPath for Content Sections (Optional)")
-        st.markdown("*Enter the full XPath for the content sections you want to check*", unsafe_allow_html=True)
-        xpath = st.text_input("", placeholder="")
 
         # Run crawler
         if uploaded_file and keywords and target_url:
