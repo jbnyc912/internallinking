@@ -4,7 +4,6 @@ import streamlit as st
 import pandas as pd
 import base64
 
-
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
     passed_urls = []
     
@@ -16,7 +15,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
         link_to_target_found = False
         
         if xpath:
-            content_elements = soup.select(xpath)
+            content_elements = soup.xpath(xpath)
             if content_elements:
                 for content_element in content_elements:
                     content_text = content_element.get_text()
@@ -36,6 +35,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
                                     keywords_on_page.append(keyword)
                             keywords_on_page_str = ', '.join(keywords_on_page)
                             passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
+                            break
         else:
             content_text = soup.get_text()
             
