@@ -57,6 +57,7 @@ def main():
     st.image("https://cdn-icons-png.flaticon.com/128/3093/3093852.png", width=40)
     st.title("Internal Linking Finder")
     st.markdown("This tool allows you to identify URLs not currently linking to the Target URL, and also include the keyword(s)")
+    st.markdown('Created by [Break The Web](https://breaktheweb.agency)')
 
     # CSV upload
     st.subheader("Site URLs")
