@@ -72,7 +72,7 @@ def main():
         st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe
         keywords = st.text_area("", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
         keywords = keywords.split("\n")
-
+                    
         # Target URL
         st.subheader("Target URL")
         st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
