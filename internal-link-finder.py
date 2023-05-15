@@ -11,6 +11,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
     num_passed = 0
     progress_text = st.sidebar.empty()
     progress_bar = st.sidebar.progress(0)
+    
     for i, url in enumerate(site_urls):
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
@@ -18,9 +19,27 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
         link_to_target_found = False
         
         if xpath:
-            content_element = soup.find(xpath)
-            if content_element:
-                content_text = content_element.get_text()
+            content_elements = soup.select(xpath)
+            if content_elements:
+                for content_element in content_elements:
+                    content_text = content_element.get_text()
+                    for keyword in keywords:
+                        if keyword.lower() in content_text.lower():
+                            keyword_found = True
+                            break
+                    if not keyword_found:
+                        for link in content_element.find_all('a'):
+                            if link.has_attr('href') and target_url in link['href']:
+                                link_to_target_found = True
+                                break
+                        if not link_to_target_found:
+                            keywords_on_page = []
+                            for keyword in keywords:
+                                if keyword.lower() in content_text.lower():
+                                    keywords_on_page.append(keyword)
+                            keywords_on_page_str = ', '.join(keywords_on_page)
+                            passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
+                            num_passed += 1
             else:
                 content_text = ""
         else:
@@ -42,13 +61,6 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
         if link_to_target_found:
             continue
 
-        keywords_on_page = []
-        for keyword in keywords:
-            if keyword.lower() in content_text.lower():
-                keywords_on_page.append(keyword)
-        keywords_on_page_str = ', '.join(keywords_on_page)
-        passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
-        num_passed += 1
         num_crawled += 1
         progress_text.text(f"Crawling {i+1} out of {len(site_urls)}...")
         progress_bar.progress(int((i+1) / len(site_urls) * 100))
