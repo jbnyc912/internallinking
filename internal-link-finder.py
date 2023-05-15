@@ -15,7 +15,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
         link_to_target_found = False
         
         if xpath:
-            content_elements = soup.xpath(xpath)
+            content_elements = soup.select(xpath)
             if content_elements:
                 for content_element in content_elements:
                     content_text = content_element.get_text()
