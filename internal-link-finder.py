@@ -18,8 +18,11 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
         link_to_target_found = False
         
         if xpath:
-            content_elements = soup.select(xpath)
-            content_text = ' '.join([element.get_text() for element in content_elements])
+            content_elements = soup.select_one(xpath)
+            if content_elements:
+                content_text = content_elements.get_text()
+            else:
+                content_text = ""
         else:
             content_text = soup.get_text()
 
@@ -50,7 +53,6 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
         progress_text.text(f"Crawling {i+1} out of {len(site_urls)}...")
         progress_bar.progress(int((i+1) / len(site_urls) * 100))
     return passed_urls
-
 
 def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
