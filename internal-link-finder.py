@@ -70,8 +70,8 @@ def main():
         # Keywords
         st.subheader("Keywords")
         st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe
-keywords = st.text_area("", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
-keywords = keywords.split("\n")
+        keywords = st.text_area("", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
+        keywords = keywords.split("\n")
 
         # Target URL
         st.subheader("Target URL")
