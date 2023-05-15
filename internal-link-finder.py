@@ -15,6 +15,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
     for i, url in enumerate(site_urls):
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
+        keyword_found = False
         link_to_target_found = False
         
         if xpath:
@@ -22,17 +23,20 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
             if content_elements:
                 for content_element in content_elements:
                     content_text = content_element.get_text()
-                    keyword_found = any(keyword.lower() in content_text.lower() for keyword in keywords)
+                    for keyword in keywords:
+                        if keyword.lower() in content_text.lower():
+                            keyword_found = True
+                            break
                     if not keyword_found:
-                        link_to_target_found = any(
-                            link.has_attr('href') and target_url in link['href']
-                            for link in content_element.find_all('a')
-                        )
+                        for link in content_element.find_all('a'):
+                            if link.has_attr('href') and target_url in link['href']:
+                                link_to_target_found = True
+                                break
                         if not link_to_target_found:
-                            keywords_on_page = [
-                                keyword for keyword in keywords
-                                if keyword.lower() in content_text.lower()
-                            ]
+                            keywords_on_page = []
+                            for keyword in keywords:
+                                if keyword.lower() in content_text.lower():
+                                    keywords_on_page.append(keyword)
                             keywords_on_page_str = ', '.join(keywords_on_page)
                             passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
                             num_passed += 1
@@ -41,15 +45,18 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath):
         else:
             content_text = soup.get_text()
 
-        keyword_found = any(keyword.lower() in content_text.lower() for keyword in keywords)
+        for keyword in keywords:
+            if keyword.lower() in content_text.lower():
+                keyword_found = True
+                break
 
         if not keyword_found:
             continue
 
-        link_to_target_found = any(
-            link.has_attr('href') and target_url in link['href']
-            for link in soup.find_all('a')
-        )
+        for link in soup.find_all('a'):
+            if link.has_attr('href') and target_url in link['href']:
+                link_to_target_found = True
+                break
 
         if link_to_target_found:
             continue
@@ -66,7 +73,7 @@ def main():
     st.image("https://cdn-icons-png.flaticon.com/128/3093/3093852.png", width=40)
     st.title("Internal Linking Finder")
     st.markdown('*Created by [Break The Web](https://breaktheweb.agency)*')
-    st.markdown("This tool allows you to identify URLs not currently linking to the Target URL, and also include the keyword(s)")
+    st.markdown("This tool allows you to identify URLs not currently linking to the Target URL and include the keyword(s).")
 
     # CSV upload
     st.subheader("Site URLs")
@@ -83,38 +90,31 @@ def main():
         keywords = st.text_area("", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
         keywords = keywords.split("\n")
         
-        # XPath for Content Sections
-        st.subheader("Content Section's Full XPath *(Optional)*")
-        st.markdown("*By pasting in the full XPath of the content section, we can avoid looking at sitewide sections for internal links.*", unsafe_allow_html=True)
-        xpath = st.text_input("", placeholder="")
-                    
         # Target URL
         st.subheader("Target URL")
-        st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
-        target_url = st.text_input("", placeholder="https://breaktheweb.agency/seo/seo-timeline")
+        st.markdown("*Enter the target URL you want the site URLs to link to*", unsafe_allow_html=True)
+        target_url = st.text_input("", placeholder="https://example.com")
 
-        # Run crawler
-        if uploaded_file and keywords and target_url:
-            if st.button("Run Crawler"):
-                passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath)
-                st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
-                if passed_urls:
-                    # Export results to CSV
-                    st.markdown("<br>", unsafe_allow_html=True)
-                    st.subheader("**Export Results to CSV**")
-                    st.write("Click the button below to export results to CSV:")
-                    data = {'URL': [], 'Keywords Found': []}
-                    for url in passed_urls:
-                        data['URL'].append(url['URL'])
-                        data['Keywords Found'].append(url['Keywords Found'])
-                    df = pd.DataFrame(data)
-                    csv = df.to_csv(index=False)
-                    b64 = base64.b64encode(csv.encode()).decode()
-                    filename = f"Internal Linking - {target_url}.csv"
-                    href = f'<a href="data:file/csv;base64,{b64}" download="{filename}"><button>Download CSV</button></a>'
-                    st.markdown(href, unsafe_allow_html=True)
-                else:
-                    st.warning("No URLs passed all checks.")
+        # XPath
+        st.subheader("XPath (Optional)")
+        st.markdown("*Enter the XPath to narrow down the search within the HTML of each site URL*", unsafe_allow_html=True)
+        xpath = st.text_input("", placeholder="//*[@id='main']")
+
+        # Start analysis
+        if st.button("Start Analysis"):
+            passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath)
+            st.success(f"Analysis completed! Found {len(passed_urls)} opportunities.")
+
+            # Export results
+            if len(passed_urls) > 0:
+                df = pd.DataFrame(passed_urls)
+                csv = df.to_csv(index=False).encode()
+                b64 = base64.b64encode(csv).decode()
+                href = f"<a href='data:file/csv;base64,{b64}' download='internal_linking_opportunities.csv'>Download CSV</a>"
+                st.markdown(f"Download the CSV file containing the opportunities: {href}", unsafe_allow_html=True)
+            else:
+                st.info("No opportunities found.")
 
 if __name__ == "__main__":
     main()
+
