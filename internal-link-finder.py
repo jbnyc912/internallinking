@@ -5,54 +5,46 @@ import pandas as pd
 import base64
 
 
-def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector=None):
+def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
     passed_urls = []
     num_crawled = 0
     num_passed = 0
     progress_text = st.sidebar.empty()
     progress_bar = st.sidebar.progress(0)
-    for url in site_urls:
+    for i, url in enumerate(site_urls):
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
         keyword_found = False
         link_to_target_found = False
-
-        if selector is not None:
-            selected_elements = soup.select(selector)
-        else:
-            selected_elements = [soup]
-
-        for element in selected_elements:
-            text = element.get_text()
-            for keyword in keywords:
-                if keyword.lower() in text.lower():
-                    keyword_found = True
-                    break
-
-            if keyword_found:
+        for keyword in keywords:
+            if keyword.lower() in soup.get_text().lower():
+                keyword_found = True
                 break
-
-            for link in element.find_all('a'):
-                if link.has_attr('href') and target_url in link['href']:
-                    link_to_target_found = True
-                    break
-
-            if link_to_target_found:
+        if not keyword_found:
+            continue
+        for link in soup.find_all('a'):
+            if link.has_attr('href') and target_url in link['href']:
+                link_to_target_found = True
                 break
-
-        if not keyword_found and not link_to_target_found:
-            keywords_on_page = [keyword for keyword in keywords if keyword.lower() in text.lower()]
-            keywords_on_page_str = ', '.join(keywords_on_page)
-            passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
-
+        if link_to_target_found:
+            continue
+        keywords_on_page = []
+        for keyword in keywords:
+            if keyword.lower() in soup.get_text().lower():
+                keywords_on_page.append(keyword)
+        keywords_on_page_str = ', '.join(keywords_on_page)
+        passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
+        num_passed += 1
+        num_crawled += 1
+        progress_text.text(f"Crawling {i+1} out of {len(site_urls)}...")
+        progress_bar.progress(int((i+1)/len(site_urls)*100))
     return passed_urls
-
 
 def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
     st.image("https://scontent.fslc3-2.fna.fbcdn.net/v/t39.30808-6/306042676_506308304831092_90216115740552247_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=1fBuPeS-wTYAX9JSC05&_nc_ht=scontent.fslc3-2.fna&oh=00_AfAnvRo-0PBoKFOsSv_Lt8vbWf2gOz5kwvHEjlkd0GlM2Q&oe=6457BA63", width=40)
     st.title("Internal Linking Finder")
-    st.markdown("This tool allows you to identify URLs not currently linking to the Target URL, and also include the keyword(s)")
+    st.markdown("This tool allows you to identify URLs not current linking to the Target URL, and also include the keyword(s)")
 
     # CSV upload
     st.subheader("Site URLs")
@@ -68,16 +60,11 @@ def main():
         st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
         keywords = st.text_area("", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
         keywords = keywords.split("\n")
-                                   
+
         # Target URL
         st.subheader("Target URL")
         st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
-        target_url = st.text_input("", placeholder="https://breaktheweb.agency/seo/seo-timeline")                           
-                                   
-        # Selector
-        st.subheader("Selector (Optional)")
-        st.markdown("*If you want to target specific HTML elements, enter a CSS selector below*", unsafe_allow_html=True)
-        selector = st.text_input("", placeholder="e.g., #main-content .article-body")
+        target_url = st.text_input("", placeholder="https://breaktheweb.agency/seo/seo-timeline")
 
         # Run crawler
         if uploaded_file and keywords and target_url:
@@ -101,12 +88,6 @@ def main():
                     st.markdown(href, unsafe_allow_html=True)
                 else:
                     st.warning("No URLs passed all checks.")
-
-    st.sidebar.text("")
-    st.sidebar.text("")
-    st.sidebar.text("")
-    st.sidebar.text("")
-    st.sidebar.markdown("Built with ❤️ by [Break The Web](https://breaktheweb.agency/)")
-
+                
 if __name__ == "__main__":
     main()
