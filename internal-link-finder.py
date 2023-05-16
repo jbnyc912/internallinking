@@ -6,7 +6,7 @@ import base64
 
 
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector):
-    passed_urls = []
+    passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
     num_crawled = 0
     num_passed = 0
     progress_text = st.sidebar.empty()
