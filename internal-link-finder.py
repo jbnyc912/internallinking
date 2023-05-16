@@ -85,6 +85,7 @@ def main():
         # Run crawler
         if uploaded_file and keywords and target_url:
             if st.button("Run Crawler"):
+                with st.spinner("Crawling in progress..."):
                 passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
                 st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
                 if passed_urls:
