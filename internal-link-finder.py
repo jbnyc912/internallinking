@@ -16,7 +16,10 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath=No
         soup = BeautifulSoup(response.content, "html.parser")
 
         if xpath:
-            soup = soup.select_one(xpath)
+            selected_elements = soup.select(xpath)
+            if not selected_elements:
+                continue
+            soup = selected_elements[0]
 
         keyword_found = False
         link_to_target_found = False
@@ -66,11 +69,11 @@ def main():
         keywords = st.text_area("", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
         keywords = keywords.split("\n")
 
-        # XPath for HTML scan (Optional)
-        st.subheader("XPath for HTML Scan (Optional)")
-        st.markdown("Provide an XPath to limit the HTML scan of keywords and target URLs", unsafe_allow_html=True)
+        # XPath
+        st.subheader("XPath (optional)")
+        st.markdown("*Enter the XPath to scan the HTML. Leave it blank if not needed.*", unsafe_allow_html=True)
         xpath = st.text_input("", placeholder="//div[@class='content']")
-        
+
         # Target URL
         st.subheader("Target URL")
         st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
@@ -98,6 +101,8 @@ def main():
                     st.markdown(href, unsafe_allow_html=True)
                 else:
                     st.warning("No URLs passed all checks.")
-            
+
+
 if __name__ == "__main__":
     main()
+
