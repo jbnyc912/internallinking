@@ -11,7 +11,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
     num_passed = 0
     progress_text = st.sidebar.empty()
     progress_bar = st.sidebar.progress(0)
-    for i, url in enumerate(site_urls, selector, target_url):
+    for i, url in enumerate(site_urls):
         try:
             response = requests.get(url)
         except requests.exceptions.RequestException:
