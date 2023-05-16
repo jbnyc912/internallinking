@@ -6,6 +6,14 @@ import base64
 
 stop_crawl = False
 
+def reset_fields():
+    uploaded_file = None
+    site_urls = []
+    keywords = []
+    selector = ""
+    target_url = ""
+    passed_urls = []
+
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector):
     passed_urls = []
     num_crawled = 0
@@ -110,13 +118,17 @@ def main():
                         st.markdown(href, unsafe_allow_html=True)
                     else:
                         st.warning("No URLs passed all checks.")
-                
+
                 # Show balloons when crawl is complete
                 st.balloons()
-            
+
             # Stop Crawl button
             if st.button("Stop Crawl"):
                 stop_crawl = True
+
+            # Reset button
+            if st.button("Reset"):
+                reset_fields()
                 
 if __name__ == "__main__":
     main()
