@@ -11,40 +11,43 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath=No
     num_passed = 0
     progress_text = st.sidebar.empty()
     progress_bar = st.sidebar.progress(0)
-    for i, url in enumerate(site_urls):
+    def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath=None):
+    passed_urls = []
+    for url in site_urls:
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
-        if xpath:
-            selected_elements = soup.select(xpath)
-            if not selected_elements:
-                continue
-            soup = BeautifulSoup("".join(str(element) for element in selected_elements), "html.parser")
         keyword_found = False
         link_to_target_found = False
-        for keyword in keywords:
-            if keyword.lower() in soup.get_text().lower():
-                keyword_found = True
-                break
-        if not keyword_found:
-            continue
-        for link in soup.find_all('a'):
-            if link.has_attr('href') and target_url in link['href']:
-                link_to_target_found = True
-                break
-        if link_to_target_found:
-            continue
-        keywords_on_page = []
-        for keyword in keywords:
-            if keyword.lower() in soup.get_text().lower():
-                keywords_on_page.append(keyword)
-        keywords_on_page_str = ', '.join(keywords_on_page)
-        passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
-        num_passed += 1
-        num_crawled += 1
-        progress_text.text(f"Crawling {i+1} out of {len(site_urls)}...")
-        progress_bar.progress(int((i+1)/len(site_urls)*100))
-    return passed_urls
 
+        if xpath is not None:
+            selected_elements = soup.select(xpath)
+        else:
+            selected_elements = [soup]
+
+        for element in selected_elements:
+            text = element.get_text()
+            for keyword in keywords:
+                if keyword.lower() in text.lower():
+                    keyword_found = True
+                    break
+
+            if keyword_found:
+                break
+
+            for link in element.find_all('a'):
+                if link.has_attr('href') and target_url in link['href']:
+                    link_to_target_found = True
+                    break
+
+            if link_to_target_found:
+                break
+
+        if not keyword_found and not link_to_target_found:
+            keywords_on_page = [keyword for keyword in keywords if keyword.lower() in text.lower()]
+            keywords_on_page_str = ', '.join(keywords_on_page)
+            passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
+
+    return passed_urls
 
 def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
