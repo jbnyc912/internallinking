@@ -5,7 +5,7 @@ import pandas as pd
 import base64
 
 
-def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
+def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath=None):
     passed_urls = []
     num_crawled = 0
     num_passed = 0
@@ -14,6 +14,10 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
     for i, url in enumerate(site_urls):
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
+
+        if xpath:
+            soup = soup.select_one(xpath)
+
         keyword_found = False
         link_to_target_found = False
         for keyword in keywords:
@@ -40,11 +44,12 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
         progress_bar.progress(int((i+1)/len(site_urls)*100))
     return passed_urls
 
+
 def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
     st.image("https://scontent.fslc3-2.fna.fbcdn.net/v/t39.30808-6/306042676_506308304831092_90216115740552247_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=1fBuPeS-wTYAX9JSC05&_nc_ht=scontent.fslc3-2.fna&oh=00_AfAnvRo-0PBoKFOsSv_Lt8vbWf2gOz5kwvHEjlkd0GlM2Q&oe=6457BA63", width=40)
     st.title("Internal Linking Finder")
-    st.markdown("This tool allows you to identify URLs not current linking to the Target URL, and also include the keyword(s)")
+    st.markdown("This tool allows you to identify URLs not currently linking to the Target URL, and also include the keyword(s)")
 
     # CSV upload
     st.subheader("Site URLs")
@@ -61,6 +66,11 @@ def main():
         keywords = st.text_area("", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
         keywords = keywords.split("\n")
 
+        # XPath for HTML scan (Optional)
+        st.subheader("XPath for HTML Scan (Optional)")
+        st.markdown("Provide an XPath to limit the HTML scan of keywords and target URLs", unsafe_allow_html=True)
+        xpath = st.text_input("", placeholder="//div[@class='content']")
+        
         # Target URL
         st.subheader("Target URL")
         st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
@@ -69,7 +79,7 @@ def main():
         # Run crawler
         if uploaded_file and keywords and target_url:
             if st.button("Run Crawler"):
-                passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url)
+                passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath)
                 st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
                 if passed_urls:
                     # Export results to CSV
@@ -88,6 +98,6 @@ def main():
                     st.markdown(href, unsafe_allow_html=True)
                 else:
                     st.warning("No URLs passed all checks.")
-                
-if __name__ == "__main__":
-    main()
+            
+if name == "main":
+main()
