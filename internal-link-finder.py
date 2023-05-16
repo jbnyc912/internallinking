@@ -99,5 +99,5 @@ def main():
                 else:
                     st.warning("No URLs passed all checks.")
             
-if name == "main":
+if __name__ == "__main__":
     main()
