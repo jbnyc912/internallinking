@@ -14,13 +14,11 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath=No
     for i, url in enumerate(site_urls):
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
-
         if xpath:
             selected_elements = soup.select(xpath)
             if not selected_elements:
                 continue
-            soup = selected_elements[0]
-
+            soup = BeautifulSoup("".join(str(element) for element in selected_elements), "html.parser")
         keyword_found = False
         link_to_target_found = False
         for keyword in keywords:
@@ -70,9 +68,9 @@ def main():
         keywords = keywords.split("\n")
 
         # XPath
-        st.subheader("XPath (optional)")
-        st.markdown("*Enter the XPath to scan the HTML. Leave it blank if not needed.*", unsafe_allow_html=True)
-        xpath = st.text_input("", placeholder="//div[@class='content']")
+        st.subheader("XPath (Optional)")
+        st.markdown("*Provide an XPath expression to select specific elements for keyword and target URL search (e.g., //div[@class='content'])", unsafe_allow_html=True)
+        xpath = st.text_input("XPath")
 
         # Target URL
         st.subheader("Target URL")
@@ -101,8 +99,8 @@ def main():
                     st.markdown(href, unsafe_allow_html=True)
                 else:
                     st.warning("No URLs passed all checks.")
-
-
+                
 if __name__ == "__main__":
     main()
 
+       
