@@ -11,8 +11,6 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath=No
     num_passed = 0
     progress_text = st.sidebar.empty()
     progress_bar = st.sidebar.progress(0)
-    def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath=None):
-    passed_urls = []
     for url in site_urls:
         response = requests.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
