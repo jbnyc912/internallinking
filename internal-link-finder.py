@@ -45,7 +45,13 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, xpath=No
             keywords_on_page_str = ', '.join(keywords_on_page)
             passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
 
+        num_crawled += 1
+        progress_count = int((num_crawled / len(site_urls)) * 100)
+        progress_text.text(f"Crawling {num_crawled}/{len(site_urls)} URLs")
+        progress_bar.progress(progress_count)
+
     return passed_urls
+
 
 def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
@@ -104,4 +110,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-       
