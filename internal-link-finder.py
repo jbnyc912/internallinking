@@ -79,27 +79,28 @@ def main():
         st.markdown("*If you want to target specific HTML elements, enter a CSS selector below*", unsafe_allow_html=True)
         selector = st.text_input("", placeholder="e.g., #main-content .article-body")
 
-        # Run the analysis
-        if st.button("Analyze"):
-            if len(site_urls) == 0:
-                st.warning("Please upload a CSV file with site URLs.")
-            elif len(keywords) == 0:
-                st.warning("Please enter at least one keyword.")
-            elif len(target_url) == 0:
-                st.warning("Please enter a target URL.")
-            else:
-                passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
-                if len(passed_urls) > 0:
-                    st.subheader("Results")
-                    df = pd.DataFrame(passed_urls)
-                    st.dataframe(df)
-                    # Download CSV
+        # Run crawler
+        if uploaded_file and keywords and target_url:
+            if st.button("Run Crawler"):
+                passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url)
+                st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
+                if passed_urls:
+                    # Export results to CSV
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.subheader("**Export Results to CSV**")
+                    st.write("Click the button below to export results to CSV:")
+                    data = {'URL': [], 'Keywords Found': []}
+                    for url in passed_urls:
+                        data['URL'].append(url['URL'])
+                        data['Keywords Found'].append(url['Keywords Found'])
+                    df = pd.DataFrame(data)
                     csv = df.to_csv(index=False)
                     b64 = base64.b64encode(csv.encode()).decode()
-                    href = f'<a href="data:file/csv;base64,{b64}" download="internal_links.csv">Download CSV File</a>'
+                    filename = f"Internal Linking - {target_url}.csv"
+                    href = f'<a href="data:file/csv;base64,{b64}" download="{filename}"><button>Download CSV</button></a>'
                     st.markdown(href, unsafe_allow_html=True)
                 else:
-                    st.info("No URLs found that meet the criteria.")
+                    st.warning("No URLs passed all checks.")
 
     st.sidebar.text("")
     st.sidebar.text("")
