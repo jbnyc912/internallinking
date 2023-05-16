@@ -68,11 +68,11 @@ def main():
         st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
         keywords = st.text_area("", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
         keywords = keywords.split("\n")
-
+                                   
         # Target URL
         st.subheader("Target URL")
         st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
-        target_url = st.text_input("", placeholder="https://breaktheweb.agency/seo/
+        target_url = st.text_input("", placeholder="https://breaktheweb.agency/seo/seo-timeline")                           
                                    
         # Selector
         st.subheader("Selector (Optional)")
