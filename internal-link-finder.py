@@ -5,15 +5,25 @@ import pandas as pd
 import base64
 
 
-def find_urls_with_keywords_and_target(site_urls, keywords, target_url):
+def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector):
     passed_urls = []
     num_crawled = 0
     num_passed = 0
     progress_text = st.sidebar.empty()
     progress_bar = st.sidebar.progress(0)
-    for i, url in enumerate(site_urls):
-        response = requests.get(url)
+    for i, url in enumerate(site_urls, selector, target_url):
+        try:
+            response = requests.get(url)
+        except requests.exceptions.RequestException:
+            # Handle the exception (e.g., skip URL or display an error message)
+            continue
         soup = BeautifulSoup(response.content, "html.parser")
+        if selector:
+            selected_elements = soup.select(selector)
+            if not selected_elements:
+                continue
+            selected_html = "\n".join([str(element) for element in selected_elements])
+            soup = BeautifulSoup(selected_html, "html.parser")
         keyword_found = False
         link_to_target_found = False
         for keyword in keywords:
@@ -60,6 +70,12 @@ def main():
         st.markdown("*Paste relevant keywords or terms below, one per line*", unsafe_allow_html=True)
         keywords = st.text_area("", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
         keywords = keywords.split("\n")
+        
+        # Selector
+        st.subheader("HTML Selector")
+        st.markdown("*Optional: Enter an HTML selector to narrow down the crawl scope*", unsafe_allow_html=True)
+        selector = st.text_input("", placeholder="Enter HTML selector (e.g., .content)")
+
 
         # Target URL
         st.subheader("Target URL")
