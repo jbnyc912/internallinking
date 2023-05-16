@@ -52,7 +52,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
 
 def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
-    st.image("https://scontent.fslc3-2.fna.fbcdn.net/v/t39.30808-6/306042676_506308304831092_90216115740552247_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=1fBuPeS-wTYAX9JSC05&_nc_ht=scontent.fslc3-2.fna&oh=00_AfAnvRo-0PBoKFOsSv_Lt8vbWf2gOz5kwvHEjlkd0GlM2Q&oe=6457BA63", width=40)
+    st.image("https://cdn-icons-png.flaticon.com/128/9841/9841627.png", width=40)
     st.title("Internal Linking Finder")
     st.markdown("This tool allows you to identify URLs not current linking to the Target URL, and also include the keyword(s)")
 
@@ -73,13 +73,14 @@ def main():
         
         # Selector
         st.subheader("HTML Selector")
-        st.markdown("*Optional: Enter an HTML selector to narrow down the crawl scope*", unsafe_allow_html=True)
+        st.markdown("*Optional: Enter an HTML selector to narrow down the crawl scope & avoid sitewide elements*", unsafe_allow_html=True)
         selector = st.text_input("", placeholder="Enter HTML selector (e.g., .content)")
 
 
         # Target URL
         st.subheader("Target URL")
         st.markdown("*Target URL you're looking to add internal links to*", unsafe_allow_html=True)
+        st.caption("Target URL you're looking to add internal links to")
         target_url = st.text_input("", placeholder="https://breaktheweb.agency/seo/seo-timeline")
 
         # Run crawler
