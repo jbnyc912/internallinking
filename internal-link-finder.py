@@ -100,4 +100,4 @@ def main():
                     st.warning("No URLs passed all checks.")
             
 if name == "main":
-main()
+    main()
