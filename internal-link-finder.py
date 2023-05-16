@@ -4,15 +4,12 @@ import streamlit as st
 import pandas as pd
 import base64
 
-stop_crawl = False
-
 def reset_fields():
     uploaded_file = None
     site_urls = []
     keywords = []
     selector = ""
     target_url = ""
-    passed_urls = []
 
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector):
     passed_urls = []
@@ -21,8 +18,6 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
     progress_text = st.sidebar.empty()
     progress_bar = st.sidebar.progress(0)
     for i, url in enumerate(site_urls):
-        if stop_crawl:  # Add this condition
-            break
         try:
             response = requests.get(url)
         except requests.exceptions.RequestException:
@@ -96,11 +91,9 @@ def main():
 
         # Run crawler
         if uploaded_file and keywords and target_url:
-            stop_crawl = False  # Add this line
-            crawl_started = False  # Add this line
             if st.button("Run Crawler"):
                 crawl_started = True  # Set crawl_started to True
-                with st.spinner("Crawling in progress..."):
+                with st.spinner("Crawling in progress... be patient"):
                     passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
                     st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
                     if passed_urls:
@@ -124,14 +117,9 @@ def main():
                 # Show balloons when crawl is complete
                 st.balloons()
 
-            # Stop Crawl button
-            if crawl_started and not stop_crawl:
-                if st.button("Stop Crawl"):
-                    stop_crawl = True
-
-            # Reset button
-            if st.button("Reset"):
-                reset_fields()
+                # Reset button
+                if st.button("Reset"):
+                    reset_fields()
 
                 
 if __name__ == "__main__":
