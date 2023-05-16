@@ -4,6 +4,8 @@ import streamlit as st
 import pandas as pd
 import base64
 
+stop_crawl = False
+
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector):
     passed_urls = []
     num_crawled = 0
@@ -11,6 +13,8 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
     progress_text = st.sidebar.empty()
     progress_bar = st.sidebar.progress(0)
     for i, url in enumerate(site_urls):
+        if stop_crawl:  # Add this condition
+            break
         try:
             response = requests.get(url)
         except requests.exceptions.RequestException:
@@ -84,6 +88,7 @@ def main():
 
         # Run crawler
         if uploaded_file and keywords and target_url:
+            stop_crawl = False  # Add this line
             if st.button("Run Crawler"):
                 with st.spinner("Crawling in progress..."):
                     passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
@@ -105,6 +110,13 @@ def main():
                         st.markdown(href, unsafe_allow_html=True)
                     else:
                         st.warning("No URLs passed all checks.")
+                
+                # Show balloons when crawl is complete
+                st.balloons()
+            
+            # Stop Crawl button
+            if st.button("Stop Crawl"):
+                stop_crawl = True
                 
 if __name__ == "__main__":
     main()
