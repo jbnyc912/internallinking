@@ -4,6 +4,12 @@ import streamlit as st
 import pandas as pd
 import base64
 
+[theme]
+primaryColor="#F63366"
+backgroundColor="#374152"
+secondaryBackgroundColor="#374152"
+textColor="#262730"
+font="sans serif"
 
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector):
     passed_urls = []
