@@ -6,7 +6,7 @@ import base64
 
 
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector):
-    passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
+    passed_urls = []
     num_crawled = 0
     num_passed = 0
     progress_text = st.sidebar.empty()
@@ -85,7 +85,7 @@ def main():
         # Run crawler
         if uploaded_file and keywords and target_url:
             if st.button("Run Crawler"):
-                passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url)
+                passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
                 st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
                 if passed_urls:
                     # Export results to CSV
