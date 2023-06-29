@@ -116,7 +116,39 @@ def main():
                 # Reset button
                 if st.button("Reset"):
                     reset_fields()
+                    
+        # Add guide
+        st.markdown("---")
+        st.markdown("""
+        # Guide to Using the Internal Linking Finder Tool
+        The Internal Linking Finder is a tool designed to identify URLs that do not currently link to a specified target URL and also include specific keywords. This tool can be useful for SEO purposes, helping to identify opportunities for internal linking within a website.
 
+        Here's a step-by-step guide on how to use this tool:
+
+        ## Step 1: Access the Tool
+        Access the tool by visiting the following URL: https://btw-link-finder.streamlit.app/
+
+        ## Step 2: Upload Site URLs
+        The first step in using the tool is to upload a list of URLs that you want to check. These URLs should be in a CSV file, with the URLs listed in column A and no header. Click on the "Browse files" button under the "Site URLs" section to upload your file.
+
+        ## Step 3: Enter Keywords
+        Next, enter the relevant keywords or terms that you want to check for in the URLs. These should be pasted into the text area under the "Keywords" section, one keyword per line.
+
+        ## Step 4: Specify an HTML Selector (Optional)
+        If you want to narrow down the crawl scope and avoid sitewide elements, you can enter an HTML selector in the "HTML Selector" section. This is optional.
+
+        ## Step 5: Enter the Target URL
+        Enter the URL that you're looking to add internal links to in the "Target URL" section.
+
+        ## Step 6: Run the Crawler
+        Once you've entered all the necessary information, click the "Run Crawler" button to start the crawling process. The tool will then crawl each URL, checking for the presence of the specified keywords and whether each URL links to the target URL.
+
+        ## Step 7: View and DownloadResults
+        After the crawl is complete, the tool will display the number of URLs that passed all checks. If any URLs passed, you can download the results as a CSV file by clicking the "Download CSV" button.
+
+        ## Step 8: Reset (Optional)
+        If you want to run a new crawl with different parameters, click the "Reset" button to clear all fields and start over.
+        """)
                 
 if __name__ == "__main__":
     main()
