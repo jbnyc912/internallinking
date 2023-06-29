@@ -126,7 +126,6 @@ def main():
     # Add guide
     st.markdown("---")
     st.markdown("""
-    <a name="guide"></a>
     # How to Use the Internal Link Finder Tool
     The Internal Linking Finder was built by [Break The Web](https://breaktheweb.agency) to identify URLs on a given website that do not currently link to a specified target URL and also include specific terms.
 
