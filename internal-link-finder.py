@@ -62,6 +62,7 @@ def main():
     st.title("Internal Linking Finder")
     st.markdown("""
     This tool allows you to identify URLs not currently linking to the Target URL, and also include the keyword(s). 
+    \n
     For more details on how to use this tool, see the [guide](#guide) below.
     """)
 
@@ -125,6 +126,7 @@ def main():
     # Add guide
     st.markdown("---")
     st.markdown("""
+    <a name="guide"></a>
     # How to Use the Internal Link Finder Tool
     The Internal Linking Finder was built by [Break The Web](https://breaktheweb.agency) to identify URLs on a given website that do not currently link to a specified target URL and also include specific terms.
 
