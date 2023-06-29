@@ -64,9 +64,8 @@ def main():
 
     # CSV upload
     st.subheader("Site URLs")
-    st.markdown("First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header")
     
-    uploaded_file = st.file_uploader("", type="csv")
+    uploaded_file = st.file_uploader("First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header", type="csv")
     if uploaded_file is not None:
         site_urls = pd.read_csv(uploaded_file)
         site_urls = site_urls.iloc[:, 0].tolist()
@@ -74,19 +73,16 @@ def main():
 
         # Keywords
         st.subheader("Keywords")
-        st.markdown("Paste relevant keywords or terms below, one per line")
         keywords = st.text_area("Paste relevant keywords or terms below, one per line", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
         keywords = keywords.split("\n")
         
         # Selector
         st.subheader("HTML Selector")
-        st.markdown("Optional: Enter an HTML selector to narrow down the crawl scope & avoid sitewide elements")
         selector = st.text_input("Optional: Enter an HTML selector to narrow down the crawl scope & avoid sitewide elements", placeholder="Enter HTML selector (e.g., .content)")
 
 
         # Target URL
         st.subheader("Target URL")
-        st.markdown("Target URL you're looking to add internal links to")
         target_url = st.text_input("Target URL you're looking to add internal links to", placeholder="https://breaktheweb.agency/seo/seo-timeline")
 
         # Run crawler
