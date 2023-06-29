@@ -62,15 +62,15 @@ def main():
     st.title("Internal Linking Finder")
     st.markdown("This tool allows you to identify URLs not current linking to the Target URL, and also include the keyword(s)")
 
-        # CSV upload
-        st.subheader("Site URLs")
+    # CSV upload
+    st.subheader("Site URLs")
 
-        site_urls = []
-        uploaded_file = st.file_uploader("First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header", type="csv")
-        if uploaded_file is not None:
-            site_urls = pd.read_csv(uploaded_file)
-            site_urls = site_urls.iloc[:, 0].tolist()
-            st.success(f"Found {len(site_urls)} URLs.")
+    site_urls = []
+    uploaded_file = st.file_uploader("First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header", type="csv")
+    if uploaded_file is not None:
+        site_urls = pd.read_csv(uploaded_file)
+        site_urls = site_urls.iloc[:, 0].tolist()
+        st.success(f"Found {len(site_urls)} URLs.")
 
 
         # Keywords
