@@ -73,19 +73,19 @@ def main():
         st.success(f"Found {len(site_urls)} URLs.")
 
 
-        # Keywords
-        st.subheader("Keywords")
-        keywords = st.text_area("Paste relevant keywords or terms below, one per line", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
-        keywords = keywords.split("\n")
+    # Keywords
+    st.subheader("Keywords")
+    keywords = st.text_area("Paste relevant keywords or terms below, one per line", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
+    keywords = keywords.split("\n")
         
-        # Selector
-        st.subheader("HTML Selector")
-        selector = st.text_input("Optional: Enter an HTML selector to narrow down the crawl scope & avoid sitewide elements", placeholder="Enter HTML selector (e.g., .content, #main, etc.)")
+    # Selector
+    st.subheader("HTML Selector")
+    selector = st.text_input("Optional: Enter an HTML selector to narrow down the crawl scope & avoid sitewide elements", placeholder="Enter HTML selector (e.g., .content, #main, etc.)")
 
 
-        # Target URL
-        st.subheader("Target URL")
-        target_url = st.text_input("Target URL you're looking to add internal links to", placeholder="https://breaktheweb.agency/seo/seo-timeline")
+    # Target URL
+    st.subheader("Target URL")
+    target_url = st.text_input("Target URL you're looking to add internal links to", placeholder="https://breaktheweb.agency/seo/seo-timeline")
 
         # Run crawler
         if site_urls and keywords and target_url:
