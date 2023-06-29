@@ -75,7 +75,7 @@ def main():
         # Keywords
         st.subheader("Keywords")
         st.markdown("Paste relevant keywords or terms below, one per line")
-        keywords = st.text_area("", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
+        keywords = st.text_area(placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
         keywords = keywords.split("\n")
         
         # Selector
