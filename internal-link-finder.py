@@ -78,7 +78,7 @@ def main():
         
         # Selector
         st.subheader("HTML Selector")
-        selector = st.text_input("Optional: Enter an HTML selector to narrow down the crawl scope & avoid sitewide elements", placeholder="Enter HTML selector (e.g., .content)")
+        selector = st.text_input("Optional: Enter an HTML selector to narrow down the crawl scope & avoid sitewide elements", placeholder="Enter HTML selector (e.g., .content, #main, etc.)")
 
 
         # Target URL
