@@ -60,7 +60,10 @@ def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
     st.image("https://cdn-icons-png.flaticon.com/128/9841/9841627.png", width=40)
     st.title("Internal Linking Finder")
-    st.markdown("This tool allows you to identify URLs not current linking to the Target URL, and also include the keyword(s)")
+    st.markdown("""
+    This tool allows you to identify URLs not currently linking to the Target URL, and also include the keyword(s). 
+    For more details on how to use this tool, see the [guide](#guide) below.
+    """)
 
     # CSV upload
     st.subheader("Source URLs")
