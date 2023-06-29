@@ -63,7 +63,7 @@ def main():
     st.markdown("This tool allows you to identify URLs not current linking to the Target URL, and also include the keyword(s)")
 
     # CSV upload
-    st.subheader("Site URLs")
+    st.subheader("Source URLs")
 
     site_urls = []
     uploaded_file = st.file_uploader("First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header", type="csv")
@@ -122,30 +122,33 @@ def main():
     # Add guide
     st.markdown("---")
     st.markdown("""
-    # Guide to Using the Internal Linking Finder Tool
-    The Internal Linking Finder is a tool designed to identify URLs that do not currently link to a specified target URL and also include specific keywords. This tool can be useful for SEO purposes, helping to identify opportunities for internal linking within a website.
+    # How to Use the Internal Link Finder Tool
+    The Internal Linking Finder was built by [Break The Web](https://breaktheweb.agency) to identify URLs on a given website that do not currently link to a specified target URL and also include specific terms.
 
     Here's a step-by-step guide on how to use this tool:
 
-    ## Step 1: Access the Tool
-    Access the tool by visiting the following URL: https://btw-link-finder.streamlit.app/
+    ## Step 1: Upload Source URLs
+    The first step in using the tool is to upload a list of URLs that you want to check. These URLs should be in a CSV file, with the URLs listed in column A and no header. This list can be gathered from a Sitemap or crawler such as Screaming Frog or Sitebulb.
 
-    ## Step 2: Upload Site URLs
-    The first step in using the tool is to upload a list of URLs that you want to check. These URLs should be in a CSV file, with the URLs listed in column A and no header. Click on the "Browse files" button under the "Site URLs" section to upload your file.
+    The more fine-tuned the list is, the faster the tool will work and the better the results.
 
-    ## Step 3: Enter Keywords
+    ## Step 2: Enter Keywords
     Next, enter the relevant keywords or terms that you want to check for in the URLs. These should be pasted into the text area under the "Keywords" section, one keyword per line.
 
-    ## Step 4: Specify an HTML Selector (Optional)
-    If you want to narrow down the crawl scope and avoid sitewide elements, you can enter an HTML selector in the "HTML Selector" section. This is optional.
+    Keep in mind that some keywords might not be grammatically correct or natural in context, so be sure to use words that would be realistic anchors if deemed suitable.
 
-    ## Step 5: Enter the Target URL
+    ## Step 3: Specify an HTML Selector (Optional)
+    If you want to narrow down the crawl scope and avoid sitewide links in the main header or footer, you can enter an HTML selector from the source URL. This is optional, but highly recommended.
+
+    Locate the section of the page in a source URL that contains the page content (blog article, page body template, etc.) and right-clicking that section > Select Inspect > In dev tools, drag your mouse up the hierarchy to locate the parent code that covers that section, ensuring header/footer are not highlighted > Right-click the code > Copy > Copy selector. 
+
+    ## Step 4: Enter the Target URL
     Enter the URL that you're looking to add internal links to in the "Target URL" section.
 
-    ## Step 6: Run the Crawler
-    Once you've entered all the necessary information, click the "Run Crawler" button to start the crawling process. The tool will then crawl each URL, checking for the presence of the specified keywords and whether each URL links to the target URL.
+    ## Step 5: Run the Crawler
+    Once you've entered all the necessary information, click the "Run Crawler" button to start the crawling process. The tool will then crawl each Source URL, checking for the presence of the specified keywords and whether each URL links to the target URL.
 
-    ## Step 7: View and DownloadResults
+    ## Step 7: View and Download Results
     After the crawl is complete, the tool will display the number of URLs that passed all checks. If any URLs passed, you can download the results as a CSV file by clicking the "Download CSV" button.
 
     ## Step 8: Reset (Optional)
