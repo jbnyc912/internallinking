@@ -62,14 +62,16 @@ def main():
     st.title("Internal Linking Finder")
     st.markdown("This tool allows you to identify URLs not current linking to the Target URL, and also include the keyword(s)")
 
-    # CSV upload
-    st.subheader("Site URLs")
-    
-    uploaded_file = st.file_uploader("First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header", type="csv")
-    if uploaded_file is not None:
-        site_urls = pd.read_csv(uploaded_file)
-        site_urls = site_urls.iloc[:, 0].tolist()
-        st.success(f"Found {len(site_urls)} URLs.")
+        # CSV upload
+        st.subheader("Site URLs")
+
+        site_urls = []
+        uploaded_file = st.file_uploader("First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header", type="csv")
+        if uploaded_file is not None:
+            site_urls = pd.read_csv(uploaded_file)
+            site_urls = site_urls.iloc[:, 0].tolist()
+            st.success(f"Found {len(site_urls)} URLs.")
+
 
         # Keywords
         st.subheader("Keywords")
@@ -86,7 +88,7 @@ def main():
         target_url = st.text_input("Target URL you're looking to add internal links to", placeholder="https://breaktheweb.agency/seo/seo-timeline")
 
         # Run crawler
-        if uploaded_file and keywords and target_url:
+        if site_urls and keywords and target_url:
             if st.button("Run Crawler"):
                 crawl_started = True  # Set crawl_started to True
                 with st.spinner("Crawling in progress... be patient"):
