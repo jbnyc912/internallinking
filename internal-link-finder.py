@@ -152,10 +152,10 @@ def main():
     ## Step 5: Run the Crawler
     Once you've entered all the necessary information, click the "Run Crawler" button to start the crawling process. The tool will then crawl each Source URL, checking for the presence of the specified keywords and whether each URL links to the target URL.
 
-    ## Step 7: View and Download Results
+    ## Step 6: View and Download Results
     After the crawl is complete, the tool will display the number of URLs that passed all checks. If any URLs passed, you can download the results as a CSV file by clicking the "Download CSV" button.
 
-    ## Step 8: Reset (Optional)
+    ## Step 7: Reset (Optional)
     If you want to run a new crawl with different parameters, click the "Reset" button to clear all fields and start over.
     """)
                 
