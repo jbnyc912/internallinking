@@ -124,11 +124,11 @@ def main():
         reset_fields()
         st.experimental_rerun()
 
-st.markdown("""
-    This tool allows you to identify URLs not currently linking to the Target URL, and also include the keyword(s). 
-    \n
-    For more details on how to use this tool, see the [guide](#how-to-use-the-internal-link-finder-tool) below.
-    """)
+    st.markdown("""
+        This tool allows you to identify URLs not currently linking to the Target URL, and also include the keyword(s). 
+        \n
+        For more details on how to use this tool, see the [guide](#how-to-use-the-internal-link-finder-tool) below.
+        """)
     
     # Add guide
     st.markdown("---")
