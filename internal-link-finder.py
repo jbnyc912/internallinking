@@ -102,21 +102,28 @@ def main():
     st.subheader("Target URL")
     target_url = st.text_input("Target URL you're looking to add internal links to", placeholder="https://breaktheweb.agency/seo/seo-timeline")
 
-    # Run crawler
-    if site_urls and keywords and target_url:
-        if st.button("Run Crawler"):
-            with st.spinner("Crawling in progress... be patient"):
-                passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
-                st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
-                if passed_urls:
-                    df = pd.DataFrame(passed_urls)
-                    st.write(df)
-                    csv = df.to_csv(index=False).encode('utf-8')
-                    st.download_button(label="Download CSV", data=csv, file_name='internal_link_suggestions.csv', mime='text/csv')
-                else:
-                    st.warning("No URLs passed all checks.")
+    # Run the crawler button is now always visible
+    if st.button("Run Crawler"):
+    if not site_urls:
+        st.error("Please upload a list of URLs to check.")
+    elif not keywords:
+        st.error("Please enter relevant keywords or terms.")
+    elif not target_url:
+        st.error("Please enter the target URL.")
+    else:
+        with st.spinner("Crawling in progress... be patient"):
+            passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
+            st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
+            if passed_urls:
+                df = pd.DataFrame(passed_urls)
+                st.write(df)
+                csv = df.to_csv(index=False).encode('utf-8')
+                st.download_button(label="Download CSV", data=csv, file_name='internal_link_suggestions.csv', mime='text/csv')
+            else:
+                st.warning("No URLs passed all checks.")
 
-            st.balloons()
+        st.balloons()
+
 
     # Reset button to clear the inputs
     if st.button("Reset"):
