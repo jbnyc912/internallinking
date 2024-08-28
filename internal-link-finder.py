@@ -3,63 +3,76 @@ from bs4 import BeautifulSoup
 import streamlit as st
 import pandas as pd
 import base64
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from lxml import etree
+from urllib.parse import urlparse, urljoin
 
 def reset_fields():
-    uploaded_file = None
-    site_urls = []
-    keywords = []
-    selector = ""
-    target_url = ""
+    st.session_state.uploaded_file = None
+    st.session_state.site_urls = []
+    st.session_state.keywords = []
+    st.session_state.selector = ""
+    st.session_state.target_url = ""
 
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector):
-    passed_urls = []
-    num_crawled = 0
-    num_passed = 0
-    progress_text = st.sidebar.empty()
-    progress_bar = st.sidebar.progress(0)
-    for i, url in enumerate(site_urls):
+    def get_content_area(url, selector):
         try:
             response = requests.get(url)
-        except requests.exceptions.RequestException:
-            # Handle the exception (e.g., skip URL or display an error message)
-            continue
-        soup = BeautifulSoup(response.content, "html.parser")
-        if selector:
-            selected_elements = soup.select(selector)
-            if not selected_elements:
-                continue
-            selected_html = "\n".join([str(element) for element in selected_elements])
-            soup = BeautifulSoup(selected_html, "html.parser")
-        keyword_found = False
-        link_to_target_found = False
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, 'html.parser')
+            dom = etree.HTML(str(soup))
+            content_area = dom.xpath(selector)
+            if content_area:
+                content_text = ''.join(content_area[0].itertext())
+                links = [a.get('href') for a in content_area[0].xpath('.//a')]
+                return url, content_text, links
+            else:
+                return url, '', []
+        except Exception as e:
+            st.error(f"Error fetching content area for {url}: {e}")
+            return url, '', []
+
+    def process_url(url):
+        url, content, links = get_content_area(url, selector)
+        if not content:
+            return []
+
+        parsed_target_url = urlparse(target_url)
+        target_paths = [target_url, parsed_target_url.path]
+
+        for link in links:
+            if link in target_paths or urljoin(url, link) in target_paths:
+                return []
+
+        local_results = []
+        found_anchors = []
         for keyword in keywords:
-            if keyword.lower() in soup.get_text().lower():
-                keyword_found = True
-                break
-        if not keyword_found:
-            continue
-        for link in soup.find_all('a'):
-            if link.has_attr('href') and target_url in link['href']:
-                link_to_target_found = True
-                break
-        if link_to_target_found:
-            continue
-        keywords_on_page = []
-        for keyword in keywords:
-            if keyword.lower() in soup.get_text().lower():
-                keywords_on_page.append(keyword)
-        keywords_on_page_str = ', '.join(keywords_on_page)
-        passed_urls.append({'URL': url, 'Keywords Found': keywords_on_page_str})
-        num_passed += 1
-        num_crawled += 1
-        progress_text.text(f"Crawling {i+1} out of {len(site_urls)}...")
-        progress_bar.progress(int((i+1)/len(site_urls)*100))
-    return passed_urls
+            if keyword in content:
+                found_anchors.append(keyword)
+
+        if found_anchors:
+            local_results.append({
+                'URL': url,
+                'Keywords Found': ', '.join(found_anchors)
+            })
+
+        return local_results
+
+    results = []
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = {executor.submit(process_url, url): url for url in site_urls}
+
+        for future in as_completed(futures):
+            url_results = future.result()
+            if url_results:
+                results.extend(url_results)
+
+    return results
 
 def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
     st.image("https://cdn-icons-png.flaticon.com/128/9841/9841627.png", width=40)
-    st.title("Internal Linking dffFinder")
+    st.title("Internal Linking Finder")
     st.markdown("""
     This tool allows you to identify URLs not currently linking to the Target URL, and also include the keyword(s). 
     \n
@@ -76,16 +89,14 @@ def main():
         site_urls = site_urls.iloc[:, 0].tolist()
         st.success(f"Found {len(site_urls)} URLs.")
 
-
     # Keywords
     st.subheader("Keywords")
     keywords = st.text_area("Paste relevant keywords or terms below, one per line", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
     keywords = keywords.split("\n")
         
     # Selector
-    st.subheader("HTML Selector")
-    selector = st.text_input("Optional: Enter an HTML selector to narrow down the crawl scope & avoid sitewide elements", placeholder="Enter HTML selector (e.g., .content, #main, etc.)")
-
+    st.subheader("XPath Selector")
+    selector = st.text_input("Optional: Enter an XPath selector to narrow down the crawl scope & avoid sitewide elements", placeholder="Enter XPath selector (e.g., //div[@class='content'])")
 
     # Target URL
     st.subheader("Target URL")
@@ -94,35 +105,24 @@ def main():
     # Run crawler
     if site_urls and keywords and target_url:
         if st.button("Run Crawler"):
-            crawl_started = True  # Set crawl_started to True
             with st.spinner("Crawling in progress... be patient"):
                 passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
                 st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
                 if passed_urls:
-                    # Export results to CSV
-                    st.markdown("<br>", unsafe_allow_html=True)
-                    st.subheader("**Export Results to CSV**")
-                    st.write("Click the button below to export results to CSV:")
-                    data = {'URL': [], 'Keywords Found': []}
-                    for url in passed_urls:
-                        data['URL'].append(url['URL'])
-                        data['Keywords Found'].append(url['Keywords Found'])
-                    df = pd.DataFrame(data)
-                    csv = df.to_csv(index=False)
-                    b64 = base64.b64encode(csv.encode()).decode()
-                    filename = f"Internal Linking - {target_url}.csv"
-                    href = f'<a href="data:file/csv;base64,{b64}" download="{filename}"><button>Download CSV</button></a>'
-                    st.markdown(href, unsafe_allow_html=True)
+                    df = pd.DataFrame(passed_urls)
+                    st.write(df)
+                    csv = df.to_csv(index=False).encode('utf-8')
+                    st.download_button(label="Download CSV", data=csv, file_name='internal_link_suggestions.csv', mime='text/csv')
                 else:
                     st.warning("No URLs passed all checks.")
 
-            # Show balloons when crawl is complete
             st.balloons()
 
-            # Reset button
-            if st.button("Reset"):
-                reset_fields()
-                    
+    # Reset button to clear the inputs
+    if st.button("Reset"):
+        reset_fields()
+        st.experimental_rerun()
+
     # Add guide
     st.markdown("---")
     st.markdown("""
@@ -141,8 +141,8 @@ def main():
 
     Keep in mind that some keywords might not be grammatically correct or natural in context, so be sure to use words that would be realistic anchors if deemed suitable.
 
-    ## Step 3: Specify an HTML Selector (Optional)
-    If you want to narrow down the crawl scope and avoid sitewide links in the main header or footer, you can enter an HTML selector from the source URL. This is optional, but highly recommended.
+    ## Step 3: Specify an XPath Selector (Optional)
+    If you want to narrow down the crawl scope and avoid sitewide links in the main header or footer, you can enter an XPath selector from the source URL. This is optional, but highly recommended.
 
     Locate the section of the page in a source URL that contains the page content (blog article, page body template, etc.) and right-clicking that section > Select Inspect > In dev tools, drag your mouse up the hierarchy to locate the parent code that covers that section, ensuring header/footer are not highlighted > Right-click the code > Copy > Copy selector. 
 
@@ -158,6 +158,6 @@ def main():
     ## Step 7: Reset (Optional)
     If you want to run a new crawl with different parameters, click the "Reset" button to clear all fields and start over.
     """)
-                
+
 if __name__ == "__main__":
     main()
