@@ -59,7 +59,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
 def main():
     st.set_page_config(page_title="Internal Linking Finder - a Break The Web tool", page_icon=":link:")
     st.image("https://cdn-icons-png.flaticon.com/128/9841/9841627.png", width=40)
-    st.title("Internal Linking Finder")
+    st.title("Internal Linking dffFinder")
     st.markdown("""
     This tool allows you to identify URLs not currently linking to the Target URL, and also include the keyword(s). 
     \n
