@@ -124,7 +124,7 @@ def main():
         reset_fields()
         st.experimental_rerun()
 
-    st.markdown(""""*Run Crawler button is activated once all required fields are completed*""")
+    st.markdown("""**Run Crawler button is activated once all required fields are completed*""")
     
     # Add guide
     st.markdown("---")
