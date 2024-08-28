@@ -95,8 +95,8 @@ def main():
     keywords = keywords.split("\n")
         
     # Selector
-    st.subheader("XPath Selector")
-    selector = st.text_input("Optional: Enter an XPath selector to narrow down the crawl scope & avoid sitewide elements", placeholder="Enter XPath selector (e.g., //div[@class='content'])")
+    st.subheader("XPath")
+    selector = st.text_input("Optional: Enter an XPath to narrow down the crawl scope & avoid sitewide elements", placeholder="Enter XPath selector (e.g., //div[@class='content'])")
 
     # Target URL
     st.subheader("Target URL")
@@ -142,10 +142,10 @@ def main():
 
     Keep in mind that some keywords might not be grammatically correct or natural in context, so be sure to use words that would be realistic anchors if deemed suitable.
 
-    ## Step 3: Specify an XPath Selector (Optional)
-    If you want to narrow down the crawl scope and avoid sitewide links in the main header or footer, you can enter an XPath selector from the source URL. This is optional, but highly recommended.
+    ## Step 3: Specify an XPath (Optional)
+    If you want to narrow down the crawl scope and avoid sitewide links in the main header or footer, you can enter an XPath from the source URL. This is optional, but highly recommended.
 
-    Locate the section of the page in a source URL that contains the page content (blog article, page body template, etc.) and right-clicking that section > Select Inspect > In dev tools, drag your mouse up the hierarchy to locate the parent code that covers that section, ensuring header/footer are not highlighted > Right-click the code > Copy > Copy selector. 
+    Locate the section of the page in a source URL that contains the page content (blog article, page body template, etc.) and right-clicking that section > Select Inspect > In dev tools, drag your mouse up the hierarchy to locate the parent code that covers that section, ensuring header/footer are not highlighted > Right-click the code > Copy > Copy XPath. 
 
     ## Step 4: Enter the Target URL
     Enter the URL that you're looking to add internal links to in the "Target URL" section.
