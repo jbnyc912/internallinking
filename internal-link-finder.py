@@ -69,10 +69,13 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
                 found_anchors.append((keyword, highlighted_link))
 
         if found_anchors:
+            # Add each keyword and its corresponding link separately
             local_results.append({
                 'URL': url,
-                'Keywords Found': ', '.join(found_anchors)
+                'Keywords Found': ', '.join([anchor[0] for anchor in found_anchors]),  # List of keywords
+                'Links': ', '.join([anchor[1] for anchor in found_anchors])  # List of links
             })
+
 
         return local_results
 
