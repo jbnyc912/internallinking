@@ -56,29 +56,23 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
                 before_text = content[max(0, start_idx - 10):start_idx]
                 after_text = content[end_idx:end_idx + 10]
         
-                # Clean up the text by replacing spaces with %20 (URL encoding)
+                # URL encode spaces for the fragment
                 before_text = before_text.replace(' ', '%20')
                 after_text = after_text.replace(' ', '%20')
                 keyword_encoded = keyword.replace(' ', '%20')
         
-                # Construct the URL fragment
+                # Construct the URL fragment for the highlight
                 fragment = f"#:~:text={before_text}-,{keyword_encoded},-{after_text}"
                 highlighted_link = f"{url}{fragment}"
         
                 # Append the keyword and highlighted link
-                found_anchors.append(f"{keyword} ({highlighted_link})")
-
+                found_anchors.append((keyword, highlighted_link))
 
         if found_anchors:
-            result_row = [url]  # Start with the URL
-            for anchor in found_anchors:
-                keyword = anchor.split(' (')[0]  # Extract the keyword
-                link = anchor.split(' (')[1].replace(')', '')  # Extract the link
-                result_row.append(keyword)  # Add keyword
-                result_row.append(link)  # Add corresponding location
-            return result_row
-
-
+            local_results.append({
+                'URL': url,
+                'Keywords Found': ', '.join(found_anchors)
+            })
 
         return local_results
 
@@ -134,24 +128,15 @@ def main():
                 st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
                 if passed_urls:
                     # Convert the results into a DataFrame
-                    # Ensure all rows have the same number of columns by padding with None
-                    max_cols = max([len(row) for row in passed_urls])  # Get the maximum length of any row
-                    
-                    # Create a new list where each row is padded with None if it's shorter than max_cols
-                    padded_rows = [row + [None] * (max_cols - len(row)) for row in passed_urls]
-                    
-                    # Convert the padded rows into a DataFrame
-                    df = pd.DataFrame(padded_rows)
-                    
-                    # Construct the DataFrame with the correct column structure (URL, Keyword 1, Location 1, etc.)
-                    num_keywords = (df.shape[1] - 1) // 2
-                    columns = ['URL'] + [item for i in range(num_keywords) for item in [f'Keyword {i+1}', f'Location {i+1}']]
-                    df.columns = columns
-                    
-                    # Display the DataFrame
+                    df = pd.DataFrame(passed_urls)
+    
+                    # Ensure alternating keyword and location columns
+                    max_cols = max([len(row) for row in passed_urls])  # Get the max number of columns
+                    columns = ['URL'] + [f'Keyword {i+1}', f'Location {i+1}' for i in range(max_cols // 2)]
+                    df.columns = columns[:df.shape[1]]  # Adjust based on found keywords/locations
+    
+                    # Display the DataFrame and prepare for CSV download
                     st.write(df)
-                    
-                    # Export the DataFrame to CSV
                     csv = df.to_csv(index=False).encode('utf-8')
                     st.download_button(label="Download CSV", data=csv, file_name='internal_link_suggestions.csv', mime='text/csv')
                 else:
