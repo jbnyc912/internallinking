@@ -136,15 +136,25 @@ def main():
                     # Convert the results into a DataFrame
                     df = pd.DataFrame(passed_urls)
                     
-                    # Ensure the correct column structure (URL, Keyword 1, Location 1, Keyword 2, Location 2, etc.)
-                    num_keywords = (df.shape[1] - 1) // 2  # Calculate the number of keyword-location pairs
-                    columns = ['URL'] + [item for i in range(num_keywords) for item in [f'Keyword {i+1}', f'Location {i+1}']]
+                    # Ensure the correct structure: alternating keyword and location columns
+                    max_cols = max([len(row) for row in passed_urls])  # Get the longest row (most keywords/locations)
+                    for row in passed_urls:
+                        while len(row) < max_cols:
+                            row.append(None)  # Pad rows with missing values
+                    
+                    # Construct the DataFrame with the correct column structure
+                    df = pd.DataFrame(passed_urls)
+                    num_keywords = (df.shape[1] - 1) // 2
+                    columns = ['URL'] + [f'Keyword {i+1}', f'Location {i+1}' for i in range(num_keywords)]
                     df.columns = columns
                     
-                    # Display the DataFrame and prepare it for CSV download
+                    # Display the DataFrame
                     st.write(df)
+                    
+                    # Export the DataFrame to CSV
                     csv = df.to_csv(index=False).encode('utf-8')
                     st.download_button(label="Download CSV", data=csv, file_name='internal_link_suggestions.csv', mime='text/csv')
+
                 else:
                     st.warning("No URLs passed all checks.")
 
