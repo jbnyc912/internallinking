@@ -132,7 +132,8 @@ def main():
     
                     # Ensure alternating keyword and location columns
                     max_cols = max([len(row) for row in passed_urls])  # Get the max number of columns
-                    columns = ['URL'] + [f'Keyword {i+1}', f'Location {i+1}' for i in range(max_cols // 2)]
+                    columns = ['URL'] + [item for i in range(max_cols // 2) for item in [f'Keyword {i+1}', f'Location {i+1}']]
+    
                     df.columns = columns[:df.shape[1]]  # Adjust based on found keywords/locations
     
                     # Display the DataFrame and prepare for CSV download
@@ -141,7 +142,6 @@ def main():
                     st.download_button(label="Download CSV", data=csv, file_name='internal_link_suggestions.csv', mime='text/csv')
                 else:
                     st.warning("No URLs passed all checks.")
-
 
             st.balloons()
 
