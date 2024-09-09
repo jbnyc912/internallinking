@@ -138,7 +138,7 @@ def main():
                     
                     # Ensure the correct column structure (URL, Keyword 1, Location 1, Keyword 2, Location 2, etc.)
                     num_keywords = (df.shape[1] - 1) // 2  # Calculate the number of keyword-location pairs
-                    columns = ['URL'] + [f'Keyword {i+1}', f'Location {i+1}' for i in range(num_keywords)]
+                    columns = ['URL'] + [item for i in range(num_keywords) for item in [f'Keyword {i+1}', f'Location {i+1}']]
                     df.columns = columns
                     
                     # Display the DataFrame and prepare it for CSV download
