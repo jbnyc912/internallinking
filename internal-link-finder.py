@@ -134,15 +134,16 @@ def main():
                 st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
                 if passed_urls:
                     # Convert the results into a DataFrame
-                    df = pd.DataFrame(passed_urls)
+                    # Ensure all rows have the same number of columns by padding with None
+                    max_cols = max([len(row) for row in passed_urls])  # Get the maximum length of any row
                     
-                    # Ensure the correct structure: alternating keyword and location columns
-                    max_cols = max([len(row) for row in passed_urls])  # Get the longest row (most keywords/locations)
-                    for row in passed_urls:
-                        while len(row) < max_cols:
-                            row.append(None)  # Pad rows with missing values
+                    # Create a new list where each row is padded with None if it's shorter than max_cols
+                    padded_rows = [row + [None] * (max_cols - len(row)) for row in passed_urls]
                     
-                    # Construct the DataFrame with the correct column structure
+                    # Convert the padded rows into a DataFrame
+                    df = pd.DataFrame(padded_rows)
+                    
+                    # Construct the DataFrame with the correct column structure (URL, Keyword 1, Location 1, etc.)
                     num_keywords = (df.shape[1] - 1) // 2
                     columns = ['URL'] + [item for i in range(num_keywords) for item in [f'Keyword {i+1}', f'Location {i+1}']]
                     df.columns = columns
