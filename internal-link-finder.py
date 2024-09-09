@@ -48,13 +48,33 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
         found_anchors = []
         for keyword in keywords:
             if keyword in content:
-                found_anchors.append(keyword)
+                # Find the position of the keyword in the content
+                start_idx = content.find(keyword)
+                end_idx = start_idx + len(keyword)
+
+                # Extract surrounding text (10 characters before and after)
+                before_text = content[max(0, start_idx - 10):start_idx]
+                after_text = content[end_idx:end_idx + 10]
+        
+                # Clean up the text by replacing spaces with %20 (URL encoding)
+                before_text = before_text.replace(' ', '%20')
+                after_text = after_text.replace(' ', '%20')
+                keyword_encoded = keyword.replace(' ', '%20')
+        
+                # Construct the URL fragment
+                fragment = f"#:~:text={before_text}-,{keyword_encoded},-{after_text}"
+                highlighted_link = f"{url}{fragment}"
+        
+                # Append the highlighted link
+                found_anchors.append(f"{keyword} (Highlight: {highlighted_link})")
+
 
         if found_anchors:
             local_results.append({
                 'URL': url,
-                'Keywords Found': ', '.join(found_anchors)
+                'Keywords Found': ', '.join(found_anchors),  # This will now include highlight links
             })
+
 
         return local_results
 
