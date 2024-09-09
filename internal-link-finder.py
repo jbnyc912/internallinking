@@ -51,7 +51,7 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
                 # Find the position of the keyword in the content
                 start_idx = content.find(keyword)
                 end_idx = start_idx + len(keyword)
-
+        
                 # Extract surrounding text (10 characters before and after)
                 before_text = content[max(0, start_idx - 10):start_idx]
                 after_text = content[end_idx:end_idx + 10]
@@ -65,16 +65,13 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
                 fragment = f"#:~:text={before_text}-,{keyword_encoded},-{after_text}"
                 highlighted_link = f"{url}{fragment}"
         
-                # Append the highlighted link
-                found_anchors.append(f"{keyword} (Highlight: {highlighted_link})")
+                # Append the keyword and highlighted link
+                found_anchors.append(f"{keyword} ({highlighted_link})")
 
 
         if found_anchors:
-            local_results.append({
-                'URL': url,
-                'Keywords Found': ', '.join(found_anchors),  # This will now include highlight links
-            })
-
+            # Append URL and corresponding keywords with highlight links
+                return [url] + found_anchors
 
         return local_results
 
@@ -129,12 +126,21 @@ def main():
                 passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
                 st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
                 if passed_urls:
+                    # Convert the results into a DataFrame
                     df = pd.DataFrame(passed_urls)
+    
+                    # Ensure the columns accommodate all keywords found
+                    max_keywords = df.apply(lambda x: len(x.dropna()), axis=1).max() - 1
+                    columns = ['URL'] + [f'Keyword {i+1}' for i in range(max_keywords)]
+                    df.columns = columns[:df.shape[1]]  # Adjust column names based on number of found keywords
+    
+                    # Display the DataFrame and prepare it for CSV download
                     st.write(df)
                     csv = df.to_csv(index=False).encode('utf-8')
                     st.download_button(label="Download CSV", data=csv, file_name='internal_link_suggestions.csv', mime='text/csv')
                 else:
                     st.warning("No URLs passed all checks.")
+
 
             st.balloons()
 
