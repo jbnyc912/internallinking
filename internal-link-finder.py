@@ -70,8 +70,15 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
 
 
         if found_anchors:
-            # Append URL and corresponding keywords with highlight links
-                return [url] + found_anchors
+            result_row = [url]  # Start with the URL
+            for anchor in found_anchors:
+                keyword = anchor.split(' (')[0]  # Extract the keyword
+                link = anchor.split(' (')[1].replace(')', '')  # Extract the link
+                result_row.append(keyword)  # Add keyword
+                result_row.append(link)  # Add corresponding location
+            return result_row
+
+
 
         return local_results
 
@@ -128,12 +135,12 @@ def main():
                 if passed_urls:
                     # Convert the results into a DataFrame
                     df = pd.DataFrame(passed_urls)
-    
-                    # Ensure the columns accommodate all keywords found
-                    max_keywords = df.apply(lambda x: len(x.dropna()), axis=1).max() - 1
-                    columns = ['URL'] + [f'Keyword {i+1}' for i in range(max_keywords)]
-                    df.columns = columns[:df.shape[1]]  # Adjust column names based on number of found keywords
-    
+                    
+                    # Ensure the correct column structure (URL, Keyword 1, Location 1, Keyword 2, Location 2, etc.)
+                    num_keywords = (df.shape[1] - 1) // 2  # Calculate the number of keyword-location pairs
+                    columns = ['URL'] + [f'Keyword {i+1}', f'Location {i+1}' for i in range(num_keywords)]
+                    df.columns = columns
+                    
                     # Display the DataFrame and prepare it for CSV download
                     st.write(df)
                     csv = df.to_csv(index=False).encode('utf-8')
