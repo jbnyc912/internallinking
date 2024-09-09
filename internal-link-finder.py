@@ -5,7 +5,7 @@ import pandas as pd
 import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from lxml import etree
-from urllib.parse import urlparse, urljoin, quote
+from urllib.parse import urlparse, urljoin
 
 def reset_fields():
     st.session_state.uploaded_file = None
@@ -13,13 +13,6 @@ def reset_fields():
     st.session_state.keywords = []
     st.session_state.selector = ""
     st.session_state.target_url = ""
-
-def create_text_fragment_url(url, keyword, content):
-    index = content.index(keyword)
-    prefix = content[max(0, index-10):index].strip()
-    suffix = content[index+len(keyword):index+len(keyword)+10].strip()
-    fragment = f"#:~:text={quote(prefix)}-,{quote(keyword)},-{quote(suffix)}"
-    return f"{url}{fragment}"
 
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector):
     def get_content_area(url, selector):
@@ -55,12 +48,11 @@ def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector
         found_anchors = []
         for keyword in keywords:
             if keyword in content:
-                fragment_url = create_text_fragment_url(url, keyword, content)
-                found_anchors.append((keyword, fragment_url))
+                found_anchors.append(keyword)
         if found_anchors:
             local_results.append({
                 'URL': url,
-                'Keywords Found': found_anchors
+                'Keywords Found': found_anchors  # Changed this line
             })
         return local_results
 
@@ -114,30 +106,11 @@ def main():
             
             if passed_urls:
                 df = pd.DataFrame(passed_urls)
-                
                 # Expand the 'Keywords Found' column into separate columns
-                max_keywords = max(len(keywords) for keywords in df['Keywords Found'])
-                for i in range(max_keywords):
-                    df[f'Keyword_{i+1}'] = df['Keywords Found'].apply(lambda x: x[i][0] if i < len(x) else '')
-                    df[f'Keyword_{i+1}_URL'] = df['Keywords Found'].apply(lambda x: x[i][1] if i < len(x) else '')
-                
-                # Drop the original 'Keywords Found' column
-                df = df.drop('Keywords Found', axis=1)
-                
+                keyword_df = df['Keywords Found'].apply(pd.Series)
+                keyword_df.columns = [f'Keyword_{i+1}' for i in range(len(keyword_df.columns))]
+                df = pd.concat([df['URL'], keyword_df], axis=1)
                 st.write(df)
-                
-                # Create a hyperlinked version for display
-                def make_clickable(val):
-                    name, url = val
-                    return f'<a href="{url}" target="_blank">{name}</a>'
-                
-                df_display = df.copy()
-                for i in range(max_keywords):
-                    df_display[f'Keyword_{i+1}'] = df_display.apply(lambda row: make_clickable((row[f'Keyword_{i+1}'], row[f'Keyword_{i+1}_URL'])), axis=1)
-                    df_display = df_display.drop(f'Keyword_{i+1}_URL', axis=1)
-                
-                st.write(df_display.to_html(escape=False, index=False), unsafe_allow_html=True)
-                
                 csv = df.to_csv(index=False).encode('utf-8')
                 st.download_button(label="Download CSV", data=csv, file_name='internal_link_suggestions.csv', mime='text/csv')
             else:
