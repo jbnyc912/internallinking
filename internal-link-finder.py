@@ -143,9 +143,8 @@ def main():
                             row.append(None)  # Pad rows with missing values
                     
                     # Construct the DataFrame with the correct column structure
-                    df = pd.DataFrame(passed_urls)
                     num_keywords = (df.shape[1] - 1) // 2
-                    columns = ['URL'] + [f'Keyword {i+1}', f'Location {i+1}' for i in range(num_keywords)]
+                    columns = ['URL'] + [item for i in range(num_keywords) for item in [f'Keyword {i+1}', f'Location {i+1}']]
                     df.columns = columns
                     
                     # Display the DataFrame
@@ -154,7 +153,6 @@ def main():
                     # Export the DataFrame to CSV
                     csv = df.to_csv(index=False).encode('utf-8')
                     st.download_button(label="Download CSV", data=csv, file_name='internal_link_suggestions.csv', mime='text/csv')
-
                 else:
                     st.warning("No URLs passed all checks.")
 
