@@ -120,7 +120,7 @@ def main():
     # Reset button to clear the inputs
     if st.button("Reset"):
         reset_fields()
-        st.experimental_rerun()
+        st.rerun()
 
     st.markdown("""**Run Crawler button is activated once all required fields are completed*""")
 
