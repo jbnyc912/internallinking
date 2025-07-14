@@ -81,7 +81,7 @@ def main():
     uploaded_file = st.file_uploader("First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header", type="csv")
     if uploaded_file is not None:
         try:
-            df = pd.read_csv(uploaded_file, encoding='utf-8')
+            df = pd.read_csv(uploaded_file, encoding='utf-8', sep=None, engine='python')
         except UnicodeDecodeError:
             try:
                 df = pd.read_csv(uploaded_file, encoding='ISO-8859-1')
