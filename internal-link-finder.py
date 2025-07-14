@@ -83,10 +83,20 @@ def main():
         try:
             df = pd.read_csv(uploaded_file, encoding='utf-8')
         except UnicodeDecodeError:
-            df = pd.read_csv(uploaded_file, encoding='ISO-8859-1')
+            try:
+                df = pd.read_csv(uploaded_file, encoding='ISO-8859-1')
+            except pd.errors.EmptyDataError:
+                st.error("Uploaded file is empty. Please upload a CSV with URLs in the first column.")
+                return
+        except pd.errors.EmptyDataError:
+            st.error("Uploaded file is empty. Please upload a CSV with URLs in the first column.")
+            return
     
         site_urls = df.iloc[:, 0].dropna().astype(str).tolist()
-        st.success(f"Found {len(site_urls)} URLs.")
+        if not site_urls:
+            st.error("No valid URLs found in the uploaded file.")
+        else:
+            st.success(f"Found {len(site_urls)} URLs.")
 
 
     # Keywords
