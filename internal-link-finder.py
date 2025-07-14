@@ -78,25 +78,25 @@ def main():
     # CSV upload
     st.subheader("Source URLs")
     site_urls = []
-    uploaded_file = st.file_uploader("First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header", type="csv")
+    uploaded_file = st.file_uploader(
+        "First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header",
+        type="csv"
+    )
+    
     if uploaded_file is not None:
         try:
             df = pd.read_csv(uploaded_file, encoding='utf-8', sep=None, engine='python')
-        except UnicodeDecodeError:
-            try:
-                df = pd.read_csv(uploaded_file, encoding='ISO-8859-1')
-            except pd.errors.EmptyDataError:
-                st.error("Uploaded file is empty. Please upload a CSV with URLs in the first column.")
-                return
+            site_urls = df.iloc[:, 0].dropna().astype(str).tolist()
+    
+            if not site_urls:
+                st.error("No valid URLs found in the first column of your CSV.")
+            else:
+                st.success(f"Found {len(site_urls)} URLs.")
         except pd.errors.EmptyDataError:
             st.error("Uploaded file is empty. Please upload a CSV with URLs in the first column.")
-            return
-    
-        site_urls = df.iloc[:, 0].dropna().astype(str).tolist()
-        if not site_urls:
-            st.error("No valid URLs found in the uploaded file.")
-        else:
-            st.success(f"Found {len(site_urls)} URLs.")
+        except Exception as e:
+            st.error(f"Could not read the uploaded file: {e}")
+
 
 
     # Keywords
