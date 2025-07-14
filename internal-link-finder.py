@@ -80,9 +80,14 @@ def main():
     site_urls = []
     uploaded_file = st.file_uploader("First, upload the list of URLs you would like to check in a CSV file with the URLs in column A and no header", type="csv")
     if uploaded_file is not None:
-        site_urls = pd.read_csv(uploaded_file)
-        site_urls = site_urls.iloc[:, 0].tolist()
+        try:
+            df = pd.read_csv(uploaded_file, encoding='utf-8')
+        except UnicodeDecodeError:
+            df = pd.read_csv(uploaded_file, encoding='ISO-8859-1')
+    
+        site_urls = df.iloc[:, 0].dropna().astype(str).tolist()
         st.success(f"Found {len(site_urls)} URLs.")
+
 
     # Keywords
     st.subheader("Keywords")
