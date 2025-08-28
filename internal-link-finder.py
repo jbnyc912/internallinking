@@ -4,8 +4,8 @@ import streamlit as st
 import pandas as pd
 import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from lxml import etree
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin, urlunparse
+import re
 
 def reset_fields():
     st.session_state.uploaded_file = None
@@ -14,55 +14,148 @@ def reset_fields():
     st.session_state.selector = ""
     st.session_state.target_url = ""
 
+def normalize_url(url, base_url=None):
+    """Normalize URL for comparison"""
+    if base_url and not url.startswith(('http://', 'https://')):
+        url = urljoin(base_url, url)
+    
+    parsed = urlparse(url)
+    # Remove fragment and normalize
+    normalized = urlunparse((
+        parsed.scheme.lower(),
+        parsed.netloc.lower(),
+        parsed.path.rstrip('/') or '/',
+        parsed.params,
+        parsed.query,
+        ''  # Remove fragment
+    ))
+    return normalized
+
 def find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector):
-    def get_content_area(url, selector):
+    # Normalize target URL for comparison
+    normalized_target = normalize_url(target_url)
+    
+    def get_content_and_links(url, selector):
         try:
-            response = requests.get(url)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+            response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
             soup = BeautifulSoup(response.content, 'html.parser')
-            dom = etree.HTML(str(soup))
-            content_area = dom.xpath(selector)
-            if content_area:
-                content_text = ''.join(content_area[0].itertext())
-                links = [a.get('href') for a in content_area[0].xpath('.//a')]
-                return url, content_text, links
+            
+            # Extract content based on selector
+            if selector.strip():
+                try:
+                    # Convert XPath to CSS selector or use BeautifulSoup directly
+                    if selector.startswith('//'):
+                        # For XPath, we'll use a more robust approach
+                        from lxml import etree, html
+                        dom = html.fromstring(response.content)
+                        content_elements = dom.xpath(selector)
+                        if content_elements:
+                            # Get text content
+                            content_text = ' '.join([elem.text_content() for elem in content_elements])
+                            # Get all links within the selected area
+                            all_links = []
+                            for elem in content_elements:
+                                links = elem.xpath('.//a/@href')
+                                all_links.extend(links)
+                        else:
+                            content_text = soup.get_text()
+                            all_links = [a.get('href') for a in soup.find_all('a', href=True)]
+                    else:
+                        # Assume it's a CSS selector
+                        selected = soup.select(selector)
+                        if selected:
+                            content_text = ' '.join([elem.get_text() for elem in selected])
+                            all_links = []
+                            for elem in selected:
+                                links = elem.find_all('a', href=True)
+                                all_links.extend([link.get('href') for link in links])
+                        else:
+                            content_text = soup.get_text()
+                            all_links = [a.get('href') for a in soup.find_all('a', href=True)]
+                except Exception as selector_error:
+                    st.warning(f"Selector error for {url}: {selector_error}. Using full page content.")
+                    content_text = soup.get_text()
+                    all_links = [a.get('href') for a in soup.find_all('a', href=True)]
             else:
-                return url, '', []
+                # Use full page content
+                content_text = soup.get_text()
+                all_links = [a.get('href') for a in soup.find_all('a', href=True)]
+            
+            return url, content_text, all_links
+            
+        except requests.exceptions.RequestException as e:
+            st.error(f"Request error for {url}: {e}")
+            return url, '', []
         except Exception as e:
-            st.error(f"Error fetching content area for {url}: {e}")
+            st.error(f"Error processing {url}: {e}")
             return url, '', []
 
     def process_url(url):
-        url, content, links = get_content_area(url, selector)
+        url, content, links = get_content_and_links(url, selector)
         if not content:
             return []
         
-        parsed_target_url = urlparse(target_url)
-        target_paths = [target_url, parsed_target_url.path]
-        
+        # Check if page already links to target URL
+        page_links_to_target = False
         for link in links:
-            if link in target_paths or urljoin(url, link) in target_paths:
-                return []
+            if link:
+                normalized_link = normalize_url(link, url)
+                if normalized_link == normalized_target:
+                    page_links_to_target = True
+                    break
         
-        local_results = []
-        found_anchors = []
+        # If page already links to target, skip it
+        if page_links_to_target:
+            return []
+        
+        # Check for keywords in content
+        found_keywords = []
+        content_lower = content.lower()
+        
         for keyword in keywords:
-            if keyword in content:
-                found_anchors.append(keyword)
-        if found_anchors:
-            local_results.append({
+            if keyword.strip() and keyword.lower() in content_lower:
+                found_keywords.append(keyword.strip())
+        
+        # Return result if keywords found and no existing link to target
+        if found_keywords:
+            return [{
                 'URL': url,
-                'Keywords Found': found_anchors  # Changed this line
-            })
-        return local_results
+                'Keywords Found': found_keywords
+            }]
+        
+        return []
 
     results = []
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    processed_count = 0
+    
+    # Filter out empty keywords
+    keywords = [k.strip() for k in keywords if k.strip()]
+    
+    if not keywords:
+        st.error("No valid keywords provided.")
+        return []
+    
+    with ThreadPoolExecutor(max_workers=5) as executor:  # Reduced workers to be more respectful
         futures = {executor.submit(process_url, url): url for url in site_urls}
+        
         for future in as_completed(futures):
-            url_results = future.result()
-            if url_results:
-                results.extend(url_results)
+            try:
+                url_results = future.result()
+                if url_results:
+                    results.extend(url_results)
+                processed_count += 1
+                
+                # Show progress
+                if processed_count % 10 == 0:
+                    st.info(f"Processed {processed_count}/{len(site_urls)} URLs...")
+                    
+            except Exception as e:
+                st.error(f"Error processing URL: {e}")
+    
     return results
 
 def main():
@@ -92,44 +185,79 @@ def main():
                 st.error("No valid URLs found in the first column of your CSV.")
             else:
                 st.success(f"Found {len(site_urls)} URLs.")
+                # Show first few URLs for verification
+                with st.expander("Preview first 5 URLs"):
+                    for i, url in enumerate(site_urls[:5]):
+                        st.write(f"{i+1}. {url}")
         except pd.errors.EmptyDataError:
             st.error("Uploaded file is empty. Please upload a CSV with URLs in the first column.")
         except Exception as e:
             st.error(f"Could not read the uploaded file: {e}")
 
-
-
     # Keywords
     st.subheader("Keywords")
-    keywords = st.text_area("Paste relevant keywords or terms below, one per line", placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
-    keywords = keywords.split("\n")
+    keywords_input = st.text_area("Paste relevant keywords or terms below, one per line", 
+                                  placeholder="payday loans\nonline casino\ncbd vape pen", height=150)
+    keywords = [k.strip() for k in keywords_input.split("\n") if k.strip()]
+    
+    if keywords:
+        st.info(f"Keywords to search for: {', '.join(keywords)}")
 
     # Selector
-    st.subheader("XPath")
-    selector = st.text_input("Optional: Enter an XPath to narrow down the crawl scope & avoid sitewide elements", placeholder="Enter XPath selector (e.g., //div[@class='content'])")
+    st.subheader("XPath/CSS Selector")
+    selector = st.text_input("Optional: Enter an XPath or CSS selector to narrow down the crawl scope & avoid sitewide elements", 
+                           placeholder="//div[@class='content'] or .main-content")
 
     # Target URL
     st.subheader("Target URL")
-    target_url = st.text_input("Target URL you're looking to add internal links to", placeholder="https://breaktheweb.agency/seo/seo-timeline")
+    target_url = st.text_input("Target URL you're looking to add internal links to", 
+                              placeholder="https://breaktheweb.agency/seo/seo-timeline")
+    
+    if target_url:
+        st.info(f"Target URL: {target_url}")
 
     # Run crawler
     if site_urls and keywords and target_url:
         if st.button("Run Crawler"):
             with st.spinner("Crawling in progress... be patient"):
                 passed_urls = find_urls_with_keywords_and_target(site_urls, keywords, target_url, selector)
+            
             st.success(f"Finished crawling {len(site_urls)} URLs. Found {len(passed_urls)} internal linking opportunities.")
             
             if passed_urls:
                 df = pd.DataFrame(passed_urls)
+                
                 # Expand the 'Keywords Found' column into separate columns
-                keyword_df = df['Keywords Found'].apply(pd.Series)
-                keyword_df.columns = [f'Keyword_{i+1}' for i in range(len(keyword_df.columns))]
-                df = pd.concat([df['URL'], keyword_df], axis=1)
-                st.write(df)
-                csv = df.to_csv(index=False).encode('utf-8')
-                st.download_button(label="Download CSV", data=csv, file_name='internal_link_suggestions.csv', mime='text/csv')
+                max_keywords = max(len(row['Keywords Found']) for row in passed_urls)
+                keyword_columns = {}
+                
+                for i in range(max_keywords):
+                    keyword_columns[f'Keyword_{i+1}'] = [
+                        row['Keywords Found'][i] if i < len(row['Keywords Found']) else ''
+                        for row in passed_urls
+                    ]
+                
+                # Create final dataframe
+                result_df = pd.DataFrame({
+                    'URL': [row['URL'] for row in passed_urls],
+                    **keyword_columns
+                })
+                
+                st.write(result_df)
+                
+                csv = result_df.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="Download CSV", 
+                    data=csv, 
+                    file_name='internal_link_suggestions.csv', 
+                    mime='text/csv'
+                )
             else:
-                st.warning("No URLs passed all checks.")
+                st.warning("No URLs passed all checks. This could mean:")
+                st.write("- All URLs already link to the target URL")
+                st.write("- None of the URLs contain the specified keywords")
+                st.write("- The XPath/selector is too restrictive")
+                st.write("- There were errors accessing the URLs")
             st.balloons()
 
     # Reset button to clear the inputs
@@ -139,7 +267,7 @@ def main():
 
     st.markdown("""**Run Crawler button is activated once all required fields are completed*""")
 
-    # Add guide
+    # Add guide (keeping your original guide content)
     st.markdown("---")
     st.markdown("""
     # How to Use the Internal Link Finder Tool
